@@ -1,0 +1,14 @@
+# datavic_admin-js:
+#   filter: rjsmin
+#   output: ckanext-datavic_admin/%(version)s-datavic_admin.js
+#   contents:
+#     - js/datavic_admin.js
+#   extra:
+#     preload:
+#       - base/main
+
+# datavic_admin-css:
+#   filter: cssrewrite
+#   output: ckanext-datavic_admin/%(version)s-datavic_admin.css
+#   contents:
+#     - css/datavic_admin.css
