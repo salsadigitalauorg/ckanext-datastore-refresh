@@ -61,7 +61,7 @@ def refresh_dataset_datastore_list(context, data_dict=None):
     results = RefreshDatasetDatastore.get_all()
     
     res_dict = []
-    log.debug(toolkit._('Refresh datastore results: {0}').format(results))
+    log.info(toolkit._('Refresh datastore results: {0}').format(results))
     for res in results:
         
         pkg = res._asdict()
@@ -81,6 +81,7 @@ def refresh_dataset_datastore_by_frequency(context, data_dict):
     """
 
     results = RefreshDatasetDatastore.get_by_frequency(data_dict.get('frequency'))
+    breakpoint()
 
     if not results:
         log.info(toolkit._('No refresh_dataset_datastore found for frequency: {0}').format(data_dict.get('frequency')))
@@ -111,7 +112,7 @@ def refresh_dataset_datastore_delete(context, data_dict):
     rdd = RefreshDatasetDatastore.get(rdd_id)
 
     if rdd:
-        log.debug(toolkit._('Deleting refresh_dataset_datastore: {0}').format(rdd))
+        log.info(toolkit._('Deleting refresh_dataset_datastore: {0}').format(rdd))
         RefreshDatasetDatastore.delete(rdd_id)
     else:
         log.error(toolkit._('Refresh_dataset_datastore not found: {0}').format(rdd_id))

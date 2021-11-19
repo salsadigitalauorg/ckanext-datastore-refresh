@@ -68,11 +68,13 @@ class RefreshDatasetDatastore(DomainObject):
 mapper(RefreshDatasetDatastore, refresh_dataset_datastore_table,
 properties={
         u"dataset": orm.relationship(
-            Package, backref=orm.backref(u"refresh_dataset_datastores",
-            uselist=False,
+            Package, 
+            primaryjoin=refresh_dataset_datastore_table.c.dataset_id == Package.id,
+            backref=orm.backref(u"refresh_dataset_datastores",
             cascade=u"all, delete")
         )}
 )
+
 
 def setup():
     metadata.create_all(engine)
