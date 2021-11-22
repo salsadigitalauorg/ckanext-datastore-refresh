@@ -65,7 +65,8 @@ def refresh_dataset_datastore_list(context, data_dict=None):
     for res in results:
         
         pkg = res._asdict()
-        log.info(toolkit._('Refresh dataset: {0}').format(pkg['name']))
+        
+        log.info(toolkit._('Dataset set for refreshing: {0}').format(pkg))
         res_dict.append(pkg)
 
     return res_dict
@@ -91,7 +92,7 @@ def refresh_dataset_datastore_by_frequency(context, data_dict):
 
     res_dict = []
     for res in results:
-        log.info(toolkit._('Refresh dataset: {0}').format(res.Package.name))
+        log.info(toolkit._('Refresh dataset by frequency: {0}').format(res.Package.name))
         pkg = res._asdict()
         res_dict.append(pkg)
 
