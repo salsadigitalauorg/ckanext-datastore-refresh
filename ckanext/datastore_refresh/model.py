@@ -59,9 +59,8 @@ class RefreshDatasetDatastore(DomainObject):
         query = Session.query(cls, Package).join(Package).filter(Package.id == cls.dataset_id )
         return query.all()
 
-    @classmethod
-    def get_by_frequency(cls, frequency):
-        query = Session.query(cls, Package).join(Package).filter(cls.frequency==frequency)
+    def get_by_frequency(frequency):
+        query = Session.query(RefreshDatasetDatastore, Package).join(Package).filter(RefreshDatasetDatastore.frequency==frequency)
         return query.all()
 
 
@@ -77,4 +76,5 @@ properties={
 
 
 def setup():
-    metadata.create_all(engine)
+    if not metadata.tables['refresh_dataset_datastore']:
+        metadata.create(refresh_dataset_datastore_table)

@@ -2,7 +2,7 @@ import ckan.plugins.toolkit as toolkit
 import logging
 
 from ckan.lib.dictization import table_dictize
-from ckanext.datastore_refresh.model import RefreshDatasetDatastore
+from ckanext.datastore_refresh.model import RefreshDatasetDatastore as rdd
 
 log = logging.getLogger(__name__)
 ValidationError = toolkit.ValidationError
@@ -30,22 +30,22 @@ def refresh_datastore_dataset_create(context, data_dict):
     session = context['session']
     user = context['auth_user_obj']
 
-    rdd = RefreshDatasetDatastore()
+    rdd_obj = rdd()
 
-    rdd.dataset_id = data_dict.get('dataset_id')
-    rdd.frequency = data_dict.get('frequency')
-    rdd.created_user_id = user.id
+    rdd_obj.dataset_id = data_dict.get('dataset_id')
+    rdd_obj.frequency = data_dict.get('frequency')
+    rdd_obj.created_user_id = user.id
 
     try:
-        rdd.save()
+        rdd_obj.save()
     except Exception as e:
         log.error(toolkit._('Error creating refresh_dataset_datastore: {0}').format(e))
         raise ValidationError(toolkit._('Error while creating refresh_dataset_datastore'))
 
-    session.add(rdd)
+    session.add(rdd_obj)
     session.commit()
 
-    return table_dictize(rdd, context)
+    return table_dictize(rdd_obj, context)
 
 
 def refresh_dataset_datastore_list(context, data_dict=None):
@@ -58,7 +58,7 @@ def refresh_dataset_datastore_list(context, data_dict=None):
     :returns: a list of all refresh_dataset_datastores
     """
 
-    results = RefreshDatasetDatastore.get_all()
+    results = rdd.get_all()
     
     res_dict = []
     log.info(toolkit._('Refresh datastore results: {0}').format(results))
@@ -81,7 +81,9 @@ def refresh_dataset_datastore_by_frequency(context, data_dict):
 
     """
     log.info(toolkit._('Refresh_dataset_datastore by frequency: {0}').format(data_dict))
-    results = RefreshDatasetDatastore.get_by_frequency(data_dict.get('frequency'))
+    results = rdd.get_by_frequency(data_dict.get('frequency'))
+
+    breakpoint()
 
     if not results:
         log.info(toolkit._('No refresh_dataset_datastore found for frequency: {0}').format(data_dict.get('frequency')))
@@ -110,10 +112,10 @@ def refresh_dataset_datastore_delete(context, data_dict):
 
     rdd_id = data_dict['id']
     log.info(toolkit._('Deleting refresh_dataset_datastore: {0}').format(rdd_id))
-    rdd = RefreshDatasetDatastore.get(rdd_id)
+    rdd = rdd.get(rdd_id)
 
     if rdd:
-        RefreshDatasetDatastore.delete(rdd_id)
+        rdd.delete(rdd_id)
     else:
         log.error(toolkit._('Refresh_dataset_datastore not found: {0}').format(rdd_id))
         raise ValidationError("Not found")
