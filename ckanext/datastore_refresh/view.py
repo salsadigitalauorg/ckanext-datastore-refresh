@@ -5,7 +5,7 @@ import ckan.plugins.toolkit as toolkit
 from flask import Blueprint
 from flask.views import MethodView
 
-from ckanext.datavic_admin import helpers
+from ckanext.datastore_refresh import helpers
 
 NotFound = toolkit.ObjectNotFound
 get_action = toolkit.get_action

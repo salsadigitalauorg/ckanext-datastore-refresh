@@ -2,14 +2,14 @@ import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 
 
-from ckanext.datavic_admin import actions, helpers, cli, view
+from ckanext.datastore_refresh import actions, helpers, cli, view
 
-class DatavicAdminPlugin(plugins.SingletonPlugin):
-    p.implements(p.ITemplateHelpers)
-    p.implements(p.IActions)
-    p.implements(p.IConfigurer)
-    p.implements(p.IClick)
-    p.implements(p.IBlueprint)
+class DatastoreRefreshPlugin(plugins.SingletonPlugin):
+    plugins.implements(plugins.ITemplateHelpers)
+    plugins.implements(plugins.IActions)
+    plugins.implements(plugins.IConfigurer)
+    plugins.implements(plugins.IClick)
+    plugins.implements(plugins.IBlueprint)
 
     # ITemplateHelpers
     def get_helpers(self):
@@ -33,10 +33,10 @@ class DatavicAdminPlugin(plugins.SingletonPlugin):
     def update_config(self, config_):
         toolkit.add_template_directory(config_, "templates")
         toolkit.add_public_directory(config_, "public")
-        toolkit.add_resource("assets", "datavic_admin")
+        toolkit.add_resource("assets", "datastore_refresh")
         # Add a new ckan-admin tabs for our extension
         toolkit.add_ckan_admin_tab(
-            config,
+            toolkit.config,
             'datastore_config.datastore_refresh_config',
             'Datastore refresh',
             config_var='ckan.admin_tabs'

@@ -3,8 +3,8 @@
 import click
 import ckan.plugins.toolkit as tk
 
-import ckanext.datavic_admin.model as datavic_model
-import ckanext.datavic_admin.helpers as helpers
+import ckanext.datastore_refresh.model as datavic_model
+import ckanext.datastore_refresh.helpers as helpers
 
 
 @click.group(name=u'datastore_config', short_help=u'Manage datastore_config commands')
@@ -26,9 +26,12 @@ def init_db():
 
     click.secho(u"Datastore Refresh Config DB tables are setup", fg=u"green")
 
-@datastore_config.command("call_cron_job")
+@datastore_config.command("refresh_dataset_datastore")
 @click.argument(u"frequency")
-def call_cron_job(frequency):
+def refresh_dataset_datastore(frequency):
+    """
+    Refresh the datastore for a dataset
+    """
     
     if not frequency:
         tk.error_shout("Please provide frequency")
@@ -42,7 +45,6 @@ def call_cron_job(frequency):
 
     for dataset in datasets:
         resources = dataset.get('Package').resources
-        #resources = data_dict.get('resource', [])
         for res in resources:
             res = tk.get_action('xloader_submit')({"user": site_user, "ignore_auth": True}, {"resource_id": res.id })
 
