@@ -56,8 +56,6 @@ def refresh_datastore_dataset_update(context, data_dict):
     :returns: none
     """
     rdd_obj = rdd.get_by_package_id(data_dict['package_id'])
-    print("==================")
-    print(rdd_obj)
     if not rdd_obj:
         log.error(toolkit._('Refresh_dataset_datastore not found: {0}').format(data_dict['package_id']))
         raise ValidationError("Not found")
