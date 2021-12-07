@@ -1,7 +1,7 @@
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 
-
+import ckanext.xloader.interfaces as xloader_interfaces 
 from ckanext.datastore_refresh import actions, helpers, cli, view
 
 class DatastoreRefreshPlugin(plugins.SingletonPlugin):
@@ -10,6 +10,7 @@ class DatastoreRefreshPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.IClick)
     plugins.implements(plugins.IBlueprint)
+    plugins.implements(xloader_interfaces.IXloader)
 
     # ITemplateHelpers
     def get_helpers(self):
@@ -17,6 +18,7 @@ class DatastoreRefreshPlugin(plugins.SingletonPlugin):
             'get_frequency_options': helpers.get_frequency_options,
             'get_datastore_refresh_configs': helpers.get_datastore_refresh_configs,
             'get_datasore_refresh_config_option': helpers.get_datasore_refresh_config_option,
+            'time_ago_from_datetime': helpers.time_ago_from_datetime,
         }
 
     # IActions
@@ -25,7 +27,8 @@ class DatastoreRefreshPlugin(plugins.SingletonPlugin):
             'refresh_datastore_dataset_create': actions.refresh_datastore_dataset_create,
             'refresh_dataset_datastore_list': actions.refresh_dataset_datastore_list,
             'refresh_dataset_datastore_delete': actions.refresh_dataset_datastore_delete,
-            'refresh_dataset_datastore_by_frequency': actions.refresh_dataset_datastore_by_frequency
+            'refresh_dataset_datastore_by_frequency': actions.refresh_dataset_datastore_by_frequency,
+            'refresh_datastore_dataset_update': actions.refresh_datastore_dataset_update,
         }
 
         # IConfigurer
@@ -49,5 +52,15 @@ class DatastoreRefreshPlugin(plugins.SingletonPlugin):
     # IBlueprint
     def get_blueprint(self):
         return view.datastore_config
+
+    
+    # IXLoader
+    def can_upload(self, resource_id):
+        return True
+
+    def after_upload(self, context, resource_dict, dataset_dict):
+        package_id = dataset_dict.get('id')
+        toolkit.get_action('refresh_datastore_dataset_update')(context, {'package_id': package_id})
+        pass
 
     

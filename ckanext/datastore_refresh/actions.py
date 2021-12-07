@@ -1,5 +1,6 @@
 import ckan.plugins.toolkit as toolkit
 import logging
+import datetime
 
 from ckan.lib.dictization import table_dictize
 from ckanext.datastore_refresh.model import RefreshDatasetDatastore as rdd
@@ -47,6 +48,25 @@ def refresh_datastore_dataset_create(context, data_dict):
 
     return table_dictize(rdd_obj, context)
 
+def refresh_datastore_dataset_update(context, data_dict):
+    """
+    Update a refresh_dataset_datastore configuration
+    :package 
+
+    :returns: none
+    """
+    rdd_obj = rdd.get_by_package_id(data_dict['package_id'])
+    print("==================")
+    print(rdd_obj)
+    if not rdd_obj:
+        log.error(toolkit._('Refresh_dataset_datastore not found: {0}').format(data_dict['package_id']))
+        raise ValidationError("Not found")
+    
+    log.info(toolkit._('Updating refresh_dataset_datastore: {0}').format(rdd_obj))
+    rdd_obj.datastore_last_refreshed = datetime.datetime.utcnow()
+    rdd_obj.save()
+
+
 
 def refresh_dataset_datastore_list(context, data_dict=None):
     """
@@ -84,8 +104,6 @@ def refresh_dataset_datastore_by_frequency(context, data_dict):
     log.info(toolkit._('Refresh_dataset_datastore by frequency: {0}').format(data_dict))
     results = rdd.get_by_frequency(data_dict.get('frequency'))
 
-    breakpoint()
-
     if not results:
         log.info(toolkit._('No refresh_dataset_datastore found for frequency: {0}').format(data_dict.get('frequency')))
         return []
@@ -113,9 +131,9 @@ def refresh_dataset_datastore_delete(context, data_dict):
 
     rdd_id = data_dict['id']
     log.info(toolkit._('Deleting refresh_dataset_datastore: {0}').format(rdd_id))
-    rdd = rdd.get(rdd_id)
+    rdd_obj = rdd.get(rdd_id)
 
-    if rdd:
+    if rdd_obj:
         rdd.delete(rdd_id)
     else:
         log.error(toolkit._('Refresh_dataset_datastore not found: {0}').format(rdd_id))

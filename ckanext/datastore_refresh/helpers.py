@@ -1,4 +1,5 @@
 import ckan.plugins.toolkit as toolkit
+import ckan.lib.formatters as formatters
 
 from ckan.lib.navl.dictization_functions import unflatten
 from ckan.logic import clean_dict, tuplize_dict, parse_params
@@ -24,4 +25,17 @@ def get_datasore_refresh_config_option(frequency):
     res = [option['text'] for option in options if option['value'] == frequency]
     return res[0]
 
+
+def time_ago_from_datetime(datetime):
+    ''' Returns a string like `5 months ago` for a datetime relative to now
+    :param timestamp: the timestamp or datetime
+    :type timestamp: string or datetime
+
+    :rtype: string
+    '''
+    if not datetime:
+        return _('Unknown')
+
+    # the localised date
+    return formatters.localised_nice_date(datetime, show_date=False)
 
