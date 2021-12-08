@@ -63,6 +63,10 @@ class RefreshDatasetDatastore(DomainObject):
         query = Session.query(RefreshDatasetDatastore, Package).join(Package).filter(RefreshDatasetDatastore.frequency==frequency)
         return query.all()
 
+    def get_by_package_id(package_id):
+        query = Session.query(RefreshDatasetDatastore).filter(RefreshDatasetDatastore.dataset_id==package_id)
+        return query.one()
+
 
 mapper(RefreshDatasetDatastore, refresh_dataset_datastore_table,
 properties={
