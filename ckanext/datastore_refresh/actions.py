@@ -58,7 +58,6 @@ def refresh_datastore_dataset_update(context, data_dict):
     rdd_obj = rdd.get_by_package_id(data_dict['package_id'])
     if not rdd_obj:
         log.error(toolkit._('Refresh_dataset_datastore not found: {0}').format(data_dict['package_id']))
-        raise ValidationError("Not found")
     
     log.info(toolkit._('Updating refresh_dataset_datastore: {0}').format(rdd_obj))
     rdd_obj.datastore_last_refreshed = datetime.datetime.utcnow()
