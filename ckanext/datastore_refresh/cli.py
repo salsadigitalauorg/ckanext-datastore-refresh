@@ -32,7 +32,7 @@ def refresh_dataset_datastore(frequency):
     """
     Refresh the datastore for a dataset
     """
-    
+    click.echo(f"Starting refresh_dataset_datastore for frequency {frequency}")
     if not frequency:
         tk.error_shout("Please provide frequency")
     
@@ -46,7 +46,10 @@ def refresh_dataset_datastore(frequency):
     for dataset in datasets:
         resources = dataset.get('Package').resources
         for res in resources:
+            click.echo(f"Submitting dataset {dataset.get('Package').name} resource {res.name}")
             res = tk.get_action('xloader_submit')({"user": site_user, "ignore_auth": True}, {"resource_id": res.id })
+
+    click.echo(f"Finished refresh_dataset_datastore for frequency {frequency}")
 
 def get_commands():
     return [datastore_config]
