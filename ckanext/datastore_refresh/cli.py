@@ -83,7 +83,7 @@ def _submit_resource(dataset, resource, user):
         'resource_id': resource.id,
         'ignore_hash': False,
     }
-    import ipdb; ipdb.set_trace()
+
     success = tk.get_action('xloader_submit')({'user': user['name'], "ignore_auth": True}, data_dict)
     if success:
         click.secho('...ok', fg="green")
