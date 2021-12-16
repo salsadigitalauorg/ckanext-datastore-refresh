@@ -34,8 +34,7 @@ def time_ago_from_datetime(datetime):
     :rtype: string
     '''
     if not datetime:
-        return toolkit._('Unknown')
-
+        return None
     # the localised date
     return formatters.localised_nice_date(datetime, show_date=False)
 
