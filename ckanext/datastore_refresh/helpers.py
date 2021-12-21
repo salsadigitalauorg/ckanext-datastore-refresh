@@ -8,7 +8,7 @@ from ckan.logic import clean_dict, tuplize_dict, parse_params
 def get_frequency_options():
     return [
         {'value': '10', 'text': '10 minutes'},
-        {'value': '2',  'text': '2 hours'},
+        {'value': '2', 'text': '2 hours'},
         {'value': '24', 'text': 'Daily'}]
 
 

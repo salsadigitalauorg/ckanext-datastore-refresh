@@ -1,3 +1,5 @@
+import requests
+
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 
@@ -53,14 +55,15 @@ class DatastoreRefreshPlugin(plugins.SingletonPlugin):
     def get_blueprint(self):
         return view.datastore_config
 
-    
     # IXLoader
     def can_upload(self, resource_id):
         return True
 
     def after_upload(self, context, resource_dict, dataset_dict):
         package_id = dataset_dict.get('id')
-        toolkit.get_action('refresh_datastore_dataset_update')(context, {'package_id': package_id})
-        pass
+        rdd = toolkit.get_action('refresh_datastore_dataset_update')(context, {'package_id': package_id})
+        if rdd and toolkit.config.get('ckanext.datastore_refresh.refresh_on_upload', False):
+            # Ping the CDN for COVID cache 
+            requests.get(toolkit.config.get('ckanext.datastore_refresh.refresh_on_upload'))
 
     
