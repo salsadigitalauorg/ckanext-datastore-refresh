@@ -62,8 +62,10 @@ class DatastoreRefreshPlugin(plugins.SingletonPlugin):
     def after_upload(self, context, resource_dict, dataset_dict):
         package_id = dataset_dict.get('id')
         rdd = toolkit.get_action('refresh_datastore_dataset_update')(context, {'package_id': package_id})
-        if rdd and toolkit.config.get('ckanext.datastore_refresh.refresh_on_upload', False):
+        base_url = toolkit.config.get('ckanext.datastore_refresh.refresh_on_upload', False)
+        if rdd and base_url:
             # Ping the CDN for COVID cache 
-            requests.get(toolkit.config.get('ckanext.datastore_refresh.refresh_on_upload'))
+            url = base_url + '/api/datastore_search?resource_id=' + resource_dict.get('id')
+            requests.get(url)
 
     
