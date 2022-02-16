@@ -1,16 +1,10 @@
-[![Tests](https://github.com/salsadigitalauorg/ckanext-datastore-refresh/workflows/Tests/badge.svg?branch=main)](https://github.com/salsadigitalauorg/ckanext-datastore-refresh/actions)
-
 # ckanext-datastore-refresh
 
-**TODO:** Put a description of your extension here:  What does it do? What features does it have? Consider including some screenshots or embedding a video!
-
+Creates jobs that would be executed at specific time set by sysadmin to upload selected dataset resource to datastore.
 
 ## Requirements
 
-**TODO:** For example, you might want to mention here which versions of CKAN this
-extension works with.
-
-If your extension works across different versions you can add the following table:
+Works with CKAN 2.9.x and above
 
 Compatibility with core CKAN versions:
 
@@ -19,7 +13,7 @@ Compatibility with core CKAN versions:
 | 2.6 and earlier | not tested    |
 | 2.7             | not tested    |
 | 2.8             | not tested    |
-| 2.9             | not tested    |
+| 2.9             | yes           |
 
 Suggested values:
 
@@ -30,10 +24,6 @@ Suggested values:
 
 
 ## Installation
-
-**TODO:** Add any additional install steps to the list below.
-   For example installing any non-Python dependencies or adding any required
-   config settings.
 
 To install ckanext-datastore-refresh:
 
@@ -48,7 +38,7 @@ To install ckanext-datastore-refresh:
     pip install -e .
 	pip install -r requirements.txt
 
-3. Add `datavic-admin` to the `ckan.plugins` setting in your CKAN
+3. Add `datastore_refresh` to the `ckan.plugins` setting in your CKAN
    config file (by default the config file is located at
    `/etc/ckan/default/ckan.ini`).
 
@@ -61,11 +51,6 @@ To install ckanext-datastore-refresh:
 
 None at present
 
-**TODO:** Document any optional config settings here. For example:
-
-	# The minimum number of hours to wait before re-checking a resource
-	# (optional, default: 24).
-	ckanext.datavic_admin.some_setting = some_default_value
 
 
 ## Developer installation
