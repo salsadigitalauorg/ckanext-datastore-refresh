@@ -1,6 +1,6 @@
 # ckanext-datastore-refresh
 
-Creates jobs that would be executed at specific time set by sysadmin to upload selected dataset resource to datastore.
+Creates jobs that would be executed at specific time set by sysadmin to upload selected dataset resource to datastore. The configuration is available via sysadmin panel. 
 
 ## Requirements
 
