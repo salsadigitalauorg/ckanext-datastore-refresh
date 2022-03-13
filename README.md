@@ -64,6 +64,16 @@ do:
     pip install -r dev-requirements.txt
 
 
+## Setup
+
+To set this extension you will need to create cron jobs to call and execute the CLI commands for refreshing the datastore resources
+
+```
+@hourly datastore_config -c /path/to/ckan.ini refresh_dataset_datastore [frequency]
+```
+Cron jobs can be set by the desired frequency which currently is set to 10 min, 2 hours or 24 hours
+
+#TODO: Make frequencies configurable via ckan.ini file
 ## Tests
 
 To run the tests, do:
