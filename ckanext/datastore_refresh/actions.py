@@ -1,5 +1,6 @@
 import ckan.plugins.toolkit as toolkit
 import logging
+import sqlalchemy
 import datetime
 
 from ckan.lib.dictization import table_dictize
@@ -40,6 +41,7 @@ def refresh_datastore_dataset_create(context, data_dict):
     try:
         rdd_obj.save()
     except Exception as e:
+        session.rollback()
         log.error(toolkit._('Error creating refresh_dataset_datastore: {0}').format(e))
         raise ValidationError(toolkit._('Error while creating refresh_dataset_datastore'))
 
@@ -74,17 +76,21 @@ def refresh_dataset_datastore_list(context, data_dict=None):
     
     :returns: a list of all refresh_dataset_datastores
     """
+    results = list()
+    try:  
+        results = rdd.get_all()
+    except (sqlalchemy.exc.InternalError, sqlalchemy.exc.ProgrammingError) as e:
+        log.error(e)
 
-    results = rdd.get_all()
-    
     res_dict = []
-    log.info(toolkit._('Refresh datastore results: {0}').format(results))
-    for res in results:
-        
-        pkg = res._asdict()
-        
-        log.info(toolkit._('Dataset set for refreshing: {0}').format(pkg))
-        res_dict.append(pkg)
+    if results:
+        log.info(toolkit._('Refresh datastore results: {0}').format(results))
+        for res in results:
+
+            pkg = res._asdict()
+
+            log.info(toolkit._('Dataset set for refreshing: {0}').format(pkg))
+            res_dict.append(pkg)
 
     return res_dict
 
