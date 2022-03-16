@@ -1,10 +1,13 @@
 import ckan.plugins.toolkit as toolkit
+import ckan.model as model
 import logging
 import sqlalchemy
 import datetime
 
 from ckan.lib.dictization import table_dictize
+
 from ckanext.datastore_refresh.model import RefreshDatasetDatastore as rdd
+from ckanext.datastore_refresh.helpers import dictize_two_objects
 
 log = logging.getLogger(__name__)
 ValidationError = toolkit.ValidationError
@@ -82,15 +85,9 @@ def refresh_dataset_datastore_list(context, data_dict=None):
     except (sqlalchemy.exc.InternalError, sqlalchemy.exc.ProgrammingError) as e:
         log.error(e)
 
-    res_dict = []
+    res_dict = dict()
     if results:
-        log.info(toolkit._('Refresh datastore results: {0}').format(results))
-        for res in results:
-
-            pkg = res._asdict()
-
-            log.info(toolkit._('Dataset set for refreshing: {0}').format(pkg))
-            res_dict.append(pkg)
+        res_dict = dictize_two_objects({'model': model}, results)
 
     return res_dict
 
@@ -111,13 +108,8 @@ def refresh_dataset_datastore_by_frequency(context, data_dict):
         log.info(toolkit._('No refresh_dataset_datastore found for frequency: {0}').format(data_dict.get('frequency')))
         return []
 
-    res_dict = []
-    for res in results:
-        log.info(toolkit._('Refresh dataset by frequency: {0}').format(res.Package.name))
-        pkg = res._asdict()
-        res_dict.append(pkg)
-
-    return res_dict
+    data_dict = dictize_two_objects(context, results)
+    return data_dict
 
 
 

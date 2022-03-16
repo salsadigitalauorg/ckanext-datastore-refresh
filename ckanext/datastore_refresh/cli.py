@@ -2,6 +2,7 @@
 
 import click
 import ckan.plugins.toolkit as tk
+import ckan.model as model
 
 import ckanext.datastore_refresh.model as datavic_model
 import ckanext.datastore_refresh.helpers as helpers
@@ -38,15 +39,16 @@ def refresh_dataset_datastore(frequency):
     
     site_user = tk.get_action(u'get_site_user')({u'ignore_auth': True}, {})
     
-    datasets = tk.get_action('refresh_dataset_datastore_by_frequency')({}, {"frequency": frequency})
+    datasets = tk.get_action('refresh_dataset_datastore_by_frequency')({"model": model}, {"frequency": frequency})
     
     if not datasets:
         click.secho("No datasets with this criteria", fg="yellow")
 
-    for dataset in datasets:
-        resources = dataset.get('Package').resources
-        for res in resources:
-            res = tk.get_action('xloader_submit')({"user": site_user, "ignore_auth": True}, {"resource_id": res.id })
+    for dataset in datasets['refresh_dataset_datastore']:
+        pkg_id = dataset['package']['id']
+        pkg_dict = tk.get_action('package_show')({"model": model}, {'id': pkg_id})
+        for res in pkg_dict['resources']:
+            res = tk.get_action('xloader_submit')({"user": site_user, "ignore_auth": True}, {"resource_id": res['id'] })
 
 def get_commands():
     return [datastore_config]
