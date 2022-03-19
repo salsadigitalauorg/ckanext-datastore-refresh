@@ -8,16 +8,14 @@ from ckan.lib.navl.dictization_functions import unflatten
 from ckan.logic import clean_dict, tuplize_dict, parse_params
 
 from ckanext.datastore_refresh.model import RefreshDatasetDatastore as rdd
+from ckanext.datastore_refresh.choices import frequency_options
 
 
 log = logging.getLogger(__name__)
 
 
 def get_frequency_options():
-    return [
-        {'value': '10', 'text': '10 minutes'},
-        {'value': '2',  'text': '2 hours'},
-        {'value': '24', 'text': 'Daily'}]
+    return frequency_options
 
 
 def clean_params(params):

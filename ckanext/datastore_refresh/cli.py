@@ -33,22 +33,31 @@ def refresh_dataset_datastore(frequency):
     """
     Refresh the datastore for a dataset
     """
-    
-    if not frequency:
+    if not frequency or frequency == '0':
         tk.error_shout("Please provide frequency")
-    
+
     site_user = tk.get_action(u'get_site_user')({u'ignore_auth': True}, {})
-    
     datasets = tk.get_action('refresh_dataset_datastore_by_frequency')({"model": model}, {"frequency": frequency})
     
     if not datasets:
         click.secho("No datasets with this criteria", fg="yellow")
+        return []
 
     for dataset in datasets['refresh_dataset_datastore']:
         pkg_id = dataset['package']['id']
         pkg_dict = tk.get_action('package_show')({"model": model}, {'id': pkg_id})
         for res in pkg_dict['resources']:
             res = tk.get_action('xloader_submit')({"user": site_user, "ignore_auth": True}, {"resource_id": res['id'] })
+
+@datastore_config.command("available_choices", short_help="Shows available choices")
+def available_choices():
+    from ckanext.datastore_refresh.choices import frequency_options
+
+    choices = []
+    for row in frequency_options:
+        if row['value'] != '0':
+            choices.append(row['value'])
+    click.secho(f'Available choices: {choices}', fg="green")
 
 def get_commands():
     return [datastore_config]

@@ -46,6 +46,10 @@ class DatastoreRefreshConfigView(MethodView):
         if params.get('delete_config'):
             get_action('refresh_dataset_datastore_delete')(context, {'id': params.get('delete_config')})
             h.flash_success(toolkit._("Succesfully deleted configuration"))
+            return h.redirect_to('datastore_config.datastore_refresh_config')
+
+        if params.get('frequency') == '0':
+            h.flash_error(toolkit._('Please select frequency'))
             return self.get()
 
         if not params.get('dataset'):
@@ -64,7 +68,7 @@ class DatastoreRefreshConfigView(MethodView):
         results = get_action('refresh_datastore_dataset_create')(context, config_dict)
         extra_vars = self._setup_extra_template_variables()
         extra_vars["data"] = results
-        return render('admin/datastore_refresh.html', extra_vars=extra_vars)
+        return h.redirect_to('datastore_config.datastore_refresh_config')
 
 
 def register_plugin_rules(blueprint):
