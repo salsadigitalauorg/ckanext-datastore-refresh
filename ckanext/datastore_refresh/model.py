@@ -5,9 +5,12 @@ from ckan.model.package import Package
 from sqlalchemy import types, Column, Table, ForeignKey, orm, text
 
 import datetime
-import logging    
+import logging
 
 log = logging.getLogger(__name__)
+
+refresh_dataset_datastore_table = None
+
 
 refresh_dataset_datastore_table = Table(
     'refresh_dataset_datastore',
@@ -80,5 +83,5 @@ properties={
 
 
 def setup():
-    if not metadata.tables['refresh_dataset_datastore']:
-        metadata.create(refresh_dataset_datastore_table)
+    if not refresh_dataset_datastore_table.exists():
+        refresh_dataset_datastore_table.create()
