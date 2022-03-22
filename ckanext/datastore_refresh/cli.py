@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 
+import json
 import click
 import ckan.plugins.toolkit as tk
 import ckan.model as model
 
+from ckan.common import config
+
 import ckanext.datastore_refresh.model as datavic_model
-import ckanext.datastore_refresh.helpers as helpers
 
 
 @click.group(name=u'datastore_config', short_help=u'Manage datastore_config commands')
@@ -38,7 +40,7 @@ def refresh_dataset_datastore(frequency):
 
     site_user = tk.get_action(u'get_site_user')({u'ignore_auth': True}, {})
     datasets = tk.get_action('refresh_dataset_datastore_by_frequency')({"model": model}, {"frequency": frequency})
-    
+
     if not datasets:
         click.secho("No datasets with this criteria", fg="yellow")
         return []
@@ -51,12 +53,19 @@ def refresh_dataset_datastore(frequency):
 
 @datastore_config.command("available_choices", short_help="Shows available choices")
 def available_choices():
-    from ckanext.datastore_refresh.choices import frequency_options
+    frequency_options = config.get('ckanext.datastore_refresh.frequency_options', {})
+    if not frequency_options:
+        click.secho('No frequency options are configured', fg="red")
+        return
 
     choices = []
-    for row in frequency_options:
-        if row['value'] != '0':
-            choices.append(row['value'])
+    with open(frequency_options) as f:
+        json_choices = f.read()
+        json_choices = json.loads(json_choices)
+
+        for row in json_choices['frequency_options']:
+            if row['value'] != '0':
+                choices.append(row['value'])
     click.secho(f'Available choices: {choices}', fg="green")
 
 def get_commands():

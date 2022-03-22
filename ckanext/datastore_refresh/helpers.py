@@ -4,18 +4,19 @@ import ckan.lib.formatters as formatters
 import ckan.lib.dictization as d
 import ckan.lib.helpers as h
 
+import ckanext.datastore_refresh.choices as choices
+
 from ckan.lib.navl.dictization_functions import unflatten
 from ckan.logic import clean_dict, tuplize_dict, parse_params
 
 from ckanext.datastore_refresh.model import RefreshDatasetDatastore as rdd
-from ckanext.datastore_refresh.choices import frequency_options
 
 
 log = logging.getLogger(__name__)
 
 
 def get_frequency_options():
-    return frequency_options
+    return choices.load_options()
 
 
 def clean_params(params):
@@ -29,7 +30,8 @@ def get_datastore_refresh_configs():
 def get_datasore_refresh_config_option(frequency):
     options = get_frequency_options()
     res = [option['text'] for option in options if option['value'] == frequency]
-    return res[0]
+    if res:
+        return res[0]
 
 
 def time_ago_from_datetime(datetime):
