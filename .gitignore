@@ -3,6 +3,7 @@ node_modules
 bower_components
 
 # Byte-compiled / optimized / DLL files
+tests/__pycache__/
 __pycache__/
 *.py[cod]
 
@@ -38,5 +39,7 @@ htmlcov/
 nosetests.xml
 coverage.xml
 
+.DS_Store
+.vscode/
 # Sphinx documentation
 docs/_build/

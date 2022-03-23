@@ -18,8 +18,10 @@ datastore_config = Blueprint('datastore_config', __name__)
 class DatastoreRefreshConfigView(MethodView):
 
     def _setup_extra_template_variables(self):
+        context = {}
         user = toolkit.g.userobj
-        context = {u'for_view': True, u'user': user.name, u'auth_user_obj': user}
+        if user:
+            context = {u'for_view': True, u'user': user.name, u'auth_user_obj': user}
         #data_dict = {u'user_obj': user, u'include_datasets': True}
         return context
 
@@ -48,12 +50,12 @@ class DatastoreRefreshConfigView(MethodView):
             h.flash_success(toolkit._("Succesfully deleted configuration"))
             return h.redirect_to('datastore_config.datastore_refresh_config')
 
-        if params.get('frequency') == '0':
-            h.flash_error(toolkit._('Please select frequency'))
-            return self.get()
-
         if not params.get('dataset'):
             h.flash_error(toolkit._('Please select dataset'))
+            return self.get()
+
+        if params.get('frequency') == '0' or not params.get('frequency'):
+            h.flash_error(toolkit._('Please select frequency'))
             return self.get()
         try:
             dataset = get_action('package_show')(context, {'id': params.get('dataset')})

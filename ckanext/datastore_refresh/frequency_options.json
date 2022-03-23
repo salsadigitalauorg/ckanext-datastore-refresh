@@ -1,0 +1,19 @@
+{"frequency_options": [
+    {"value": "0", "text": "Select frequency"},
+    {"value": "2m", "text": "2 minutes"},
+    {"value": "5m", "text": "5 minutes"},
+    {"value": "10m", "text": "10 minutes"},
+    {"value": "20m", "text": "20 minutes"},
+    {"value": "30m", "text": "30 minutes"},
+    {"value": "1h", "text": "1 hour"},
+    {"value": "2h", "text": "2 hours"},
+    {"value": "3h", "text": "3 hours"},
+    {"value": "4h", "text": "4 hours"},
+    {"value": "5h", "text": "5 hours"},
+    {"value": "6h", "text": "6 hours"},
+    {"value": "7h", "text": "7 hours"},
+    {"value": "8h", "text": "8 hours"},
+    {"value": "9h", "text": "9 hours"},
+    {"value": "10h", "text": "10 hours"},
+    {"value": "24h", "text": "Dialy"}
+]}

@@ -1,5 +1,6 @@
 import ckan.plugins.toolkit as toolkit
 import ckan.model as model
+import ckan.logic as logic
 import logging
 import sqlalchemy
 import datetime
@@ -7,7 +8,8 @@ import datetime
 from ckan.lib.dictization import table_dictize
 
 from ckanext.datastore_refresh.model import RefreshDatasetDatastore as rdd
-from ckanext.datastore_refresh.helpers import dictize_two_objects
+from ckanext.datastore_refresh.helpers import dictize_two_objects, get_frequency_options
+from ckanext.datastore_refresh.validation import validate_frequency_choices
 
 log = logging.getLogger(__name__)
 ValidationError = toolkit.ValidationError
@@ -17,14 +19,10 @@ def refresh_datastore_dataset_create(context, data_dict):
     """
     Create a new refresh_dataset_datastore
 
-    :param id: id of the refresh_dataset_datastore
-    :type id: string
     :param dataset_id: id of the dataset
     :type dataset_id: string
     :param frequency: frequency of the refresh
     :type frequency: string
-    :param last_refresh: last refresh
-    :type last_refresh: string
 
     :returns: the newly created refresh_dataset_datastore
 
@@ -32,12 +30,24 @@ def refresh_datastore_dataset_create(context, data_dict):
     if not data_dict:
         raise ValidationError(toolkit._('No data provided'))
 
+    if not data_dict.get('frequency'):
+        raise ValidationError(toolkit._('No frequency provided'))
+
+    valid_choices = get_frequency_options()
+    validate_frequency_choices(data_dict.get('frequency'), valid_choices)
+    logic.check_access(context, data_dict)
+
+    if not data_dict.get('dataset_id'):
+        raise ValidationError(toolkit._('No dataset_id provided'))
+
     session = context['session']
     user = context['auth_user_obj']
+    dataset_id = data_dict.get('dataset_id')
+    dataset = toolkit.get_action('package_show')(context, {'id': dataset_id})
 
     rdd_obj = rdd()
 
-    rdd_obj.dataset_id = data_dict.get('dataset_id')
+    rdd_obj.dataset_id = dataset['id']
     rdd_obj.frequency = data_dict.get('frequency')
     rdd_obj.created_user_id = user.id
 
@@ -46,7 +56,9 @@ def refresh_datastore_dataset_create(context, data_dict):
     except Exception as e:
         session.rollback()
         log.error(toolkit._('Error creating refresh_dataset_datastore: {0}').format(e))
-        raise ValidationError(toolkit._('Error while creating refresh_dataset_datastore'))
+        raise ValidationError(
+            toolkit._('Error while creating refresh_dataset_datastore')
+        )
 
     session.add(rdd_obj)
     session.commit()

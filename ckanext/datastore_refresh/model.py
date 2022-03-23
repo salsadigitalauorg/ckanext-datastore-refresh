@@ -80,5 +80,5 @@ properties={
 
 
 def setup():
-    if not metadata.tables['refresh_dataset_datastore']:
-        metadata.create(refresh_dataset_datastore_table)
+    if not refresh_dataset_datastore_table.exists():
+        refresh_dataset_datastore_table.create()
