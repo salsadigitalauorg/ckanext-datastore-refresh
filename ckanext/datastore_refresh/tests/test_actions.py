@@ -93,3 +93,27 @@ class TestRefreshDatastoreDatasetCreate(object):
                 context={"auth_user_obj": sysadmin_obj},
                 **data_dict,
             )
+
+    def test_refresh_datastore_dataset_create_anonymous(self):
+        dataset, _ = self.create_test_data()
+        data_dict = {"dataset_id": dataset["id"], "frequency": "5m"}
+
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_action(
+                "refresh_datastore_dataset_create",
+                context={"auth_user_obj": "anonymous", "ignore_auth": False},
+                **data_dict,
+            )
+
+    def test_refresh_datastore_dataset_create_normal_user(self):
+        dataset, _ = self.create_test_data()
+        data_dict = {"dataset_id": dataset["id"], "frequency": "5m"}
+        normal_user = factories.User()
+        normal_user_obj = model.User.by_name(normal_user["name"])
+
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_action(
+                "refresh_datastore_dataset_create",
+                context={"auth_user_obj": normal_user_obj, "ignore_auth": False},
+                **data_dict,
+            )

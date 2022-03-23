@@ -1,5 +1,6 @@
 import logging
 import ckan.model as model
+import ckan.logic as logic
 import ckan.plugins.toolkit as toolkit
 
 from flask import Blueprint
@@ -13,6 +14,18 @@ h = toolkit.h
 render = toolkit.render
 log = logging.getLogger(__name__)
 datastore_config = Blueprint('datastore_config', __name__)
+
+
+@datastore_config.before_request
+def before_request():
+    try:
+        context = {
+            "model": model, "user": toolkit.g.user, 
+            "auth_user_obj": toolkit.g.userobj
+        }
+        logic.check_access(u'sysadmin', context)
+    except logic.NotAuthorized:
+        toolkit.base.abort(403, toolkit._(u'Need to be system administrator to administer'))
 
 
 class DatastoreRefreshConfigView(MethodView):

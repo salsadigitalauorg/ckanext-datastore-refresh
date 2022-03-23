@@ -35,10 +35,11 @@ def refresh_datastore_dataset_create(context, data_dict):
 
     valid_choices = get_frequency_options()
     validate_frequency_choices(data_dict.get('frequency'), valid_choices)
-    logic.check_access(context, data_dict)
 
     if not data_dict.get('dataset_id'):
         raise ValidationError(toolkit._('No dataset_id provided'))
+
+    logic.check_access('refresh_datastore_dataset_create', context, data_dict)
 
     session = context['session']
     user = context['auth_user_obj']
@@ -81,16 +82,14 @@ def refresh_datastore_dataset_update(context, data_dict):
     rdd_obj.save()
 
 
-
+@toolkit.side_effect_free
 def refresh_dataset_datastore_list(context, data_dict=None):
     """
     List all refresh_dataset_datastores
 
-    :param id: id of the refresh_dataset_datastore
-    :type id: string
-    
     :returns: a list of all refresh_dataset_datastores
     """
+    logic.check_access('refresh_dataset_datastore_list', context)
     results = list()
     try:  
         results = rdd.get_all()
