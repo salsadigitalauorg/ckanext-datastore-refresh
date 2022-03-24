@@ -19,8 +19,8 @@ def refresh_datastore_dataset_create(context, data_dict):
     """
     Create a new refresh_dataset_datastore
 
-    :param dataset_id: id of the dataset
-    :type dataset_id: string
+    :param package_id: id of the dataset
+    :type package_id: string
     :param frequency: frequency of the refresh
     :type frequency: string
 
@@ -36,14 +36,14 @@ def refresh_datastore_dataset_create(context, data_dict):
     valid_choices = get_frequency_options()
     validate_frequency_choices(data_dict.get('frequency'), valid_choices)
 
-    if not data_dict.get('dataset_id'):
+    if not data_dict.get('package_id'):
         raise ValidationError(toolkit._('No dataset_id provided'))
 
     logic.check_access('refresh_datastore_dataset_create', context, data_dict)
 
     session = context['session']
     user = context['auth_user_obj']
-    dataset_id = data_dict.get('dataset_id')
+    dataset_id = data_dict.get('package_id')
     dataset = toolkit.get_action('package_show')(context, {'id': dataset_id})
 
     rdd_obj = rdd()
@@ -69,10 +69,16 @@ def refresh_datastore_dataset_create(context, data_dict):
 def refresh_datastore_dataset_update(context, data_dict):
     """
     Update a refresh_dataset_datastore configuration
-    :package 
+    :package
+
+    :param package_id: id of the dataset
+    :type package_id: string
 
     :returns: none
     """
+    if not data_dict.get('package_id'):
+        raise ValidationError(toolkit._('No dataset_id provided'))
+
     rdd_obj = rdd.get_by_package_id(data_dict['package_id'])
     if not rdd_obj:
         log.error(toolkit._('Refresh_dataset_datastore not found: {0}').format(data_dict['package_id']))
