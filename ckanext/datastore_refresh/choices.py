@@ -1,5 +1,10 @@
 import json
+
+import ckan.plugins.toolkit as toolkit
 from ckan.common import config
+
+from ckanext.datastore_refresh.schema import default_frequency_options_schema
+
 
 DEFAULT_VALUES = [
     {"value": "5", "text": "5 minutes"}, 
@@ -13,5 +18,12 @@ def load_options():
         with open(frequency_options) as f:
             choices = f.read()
             choices = json.loads(choices)
-            return choices["frequency_options"]
+
+            data, errors = toolkit.navl_validate(choices, default_frequency_options_schema())
+            if errors:
+                raise toolkit.ValidationError(errors)
+            return data["frequency_options"]
     return DEFAULT_VALUES
+
+
+
