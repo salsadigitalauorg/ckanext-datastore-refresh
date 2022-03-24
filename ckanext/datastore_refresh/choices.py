@@ -2,9 +2,9 @@ import json
 from ckan.common import config
 
 DEFAULT_VALUES = [
-    {"value": "5m", "text": "5 minutes"}, 
-    {"value": "2h", "text": "2 hours"}, 
-    {"value": "24h", "text": "Dialy"}
+    {"value": "5", "text": "5 minutes"}, 
+    {"value": "120", "text": "2 hours"}, 
+    {"value": "1440", "text": "Dialy"}
 ]
 
 def load_options():
