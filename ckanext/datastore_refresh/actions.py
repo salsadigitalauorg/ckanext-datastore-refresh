@@ -97,7 +97,7 @@ def refresh_dataset_datastore_list(context, data_dict=None):
     """
     logic.check_access('refresh_dataset_datastore_list', context)
     results = list()
-    try:  
+    try:
         results = rdd.get_all()
     except (sqlalchemy.exc.InternalError, sqlalchemy.exc.ProgrammingError) as e:
         log.error(e)
