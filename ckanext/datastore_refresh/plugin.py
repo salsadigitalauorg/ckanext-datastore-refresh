@@ -36,7 +36,8 @@ class DatastoreRefreshPlugin(plugins.SingletonPlugin):
     def get_auth_functions(self):
         return {
             'refresh_datastore_dataset_create': auth.refresh_datastore_dataset_create,
-            'refresh_dataset_datastore_list': auth.refresh_dataset_datastore_list
+            'refresh_dataset_datastore_list': auth.refresh_dataset_datastore_list,
+            'refresh_dataset_datastore_by_frequency': auth.refresh_dataset_datastore_by_frequency
         }
 
     # IConfigurer

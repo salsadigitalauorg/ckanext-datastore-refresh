@@ -118,6 +118,14 @@ def refresh_dataset_datastore_by_frequency(context, data_dict):
     :returns: a list of all refresh_dataset_datastores by frequency
 
     """
+    if not data_dict.get('frequency'):
+        raise ValidationError(toolkit._('No frequency provided'))
+
+    valid_choices = get_frequency_options()
+    validate_frequency_choices(data_dict.get('frequency'), valid_choices)
+
+    toolkit.check_access("refresh_dataset_datastore_by_frequency", context)
+
     log.info(toolkit._('Refresh_dataset_datastore by frequency: {0}').format(data_dict))
     results = rdd.get_by_frequency(data_dict.get('frequency'))
 

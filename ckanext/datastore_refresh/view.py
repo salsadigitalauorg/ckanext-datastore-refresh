@@ -77,7 +77,7 @@ class DatastoreRefreshConfigView(MethodView):
             return self.get()
 
         config_dict = {
-            "dataset_id": dataset.get('id'),
+            "package_id": dataset.get('id'),
             "frequency": params.get('frequency')
         }
         results = get_action('refresh_datastore_dataset_create')(context, config_dict)

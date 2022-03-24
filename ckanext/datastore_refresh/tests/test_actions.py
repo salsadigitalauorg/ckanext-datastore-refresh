@@ -2,6 +2,7 @@ import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 import ckan.logic as logic
 import ckan.model as model
+from ckanext.datastore_refresh.cli import refresh_dataset_datastore
 import pytest
 import datetime
 import sqlalchemy
@@ -19,7 +20,7 @@ def init_db():
 
 @pytest.mark.usefixtures("clean_db", "init_db")
 class TestRefreshDatastoreDatasetCreate(object):
-    frequency = "5m"
+    frequency = "5"
 
     def create_test_data(self):
         dataset = factories.Dataset()
@@ -30,7 +31,7 @@ class TestRefreshDatastoreDatasetCreate(object):
 
     def test_refresh_datastore_dataset_create(self):
         dataset, sysadmin_obj = self.create_test_data()
-        data_dict = {"dataset_id": dataset["id"], "frequency": self.frequency}
+        data_dict = {"package_id": dataset["id"], "frequency": self.frequency}
 
         results = helpers.call_action(
             "refresh_datastore_dataset_create",
@@ -44,7 +45,7 @@ class TestRefreshDatastoreDatasetCreate(object):
 
     def test_refresh_datastore_dataset_create_no_frequency(self):
         dataset, sysadmin_obj = self.create_test_data()
-        data_dict = {"dataset_id": dataset["id"], "frequency": ""}
+        data_dict = {"package_id": dataset["id"], "frequency": ""}
 
         with pytest.raises(ValidationError):
             helpers.call_action(
@@ -66,7 +67,7 @@ class TestRefreshDatastoreDatasetCreate(object):
 
     def test_refresh_datastore_dataset_create_fake_dataset_id(self):
         _, sysadmin_obj = self.create_test_data()
-        data_dict = {"dataset_id": "fakeid", "frequency": self.frequency}
+        data_dict = {"package_id": "fakeid", "frequency": self.frequency}
 
         with pytest.raises(logic.NotFound):
             helpers.call_action(
@@ -87,7 +88,7 @@ class TestRefreshDatastoreDatasetCreate(object):
 
     def test_refresh_datastore_dataset_create_wrong_frequency(self):
         dataset, sysadmin_obj = self.create_test_data()
-        data_dict = {"dataset_id": dataset["id"], "frequency": "5"}
+        data_dict = {"package_id": dataset["id"], "frequency": "5"}
 
         with pytest.raises(Invalid):
             helpers.call_action(
@@ -98,7 +99,7 @@ class TestRefreshDatastoreDatasetCreate(object):
 
     def test_refresh_datastore_dataset_create_anonymous(self):
         dataset, _ = self.create_test_data()
-        data_dict = {"dataset_id": dataset["id"], "frequency": "5m"}
+        data_dict = {"package_id": dataset["id"], "frequency": "5m"}
 
         with pytest.raises(logic.NotAuthorized):
             helpers.call_action(
@@ -109,7 +110,7 @@ class TestRefreshDatastoreDatasetCreate(object):
 
     def test_refresh_datastore_dataset_create_normal_user(self):
         dataset, _ = self.create_test_data()
-        data_dict = {"dataset_id": dataset["id"], "frequency": "5m"}
+        data_dict = {"package_id": dataset["id"], "frequency": "5m"}
         normal_user = factories.User()
         normal_user_obj = model.User.by_name(normal_user["name"])
 
@@ -123,7 +124,7 @@ class TestRefreshDatastoreDatasetCreate(object):
 
 @pytest.mark.usefixtures("clean_db", "init_db")
 class TestRefreshDatastoreDatasetUpdate(object):
-    frequency = "5m"
+    frequency = "5"
 
     def create_test_data(self):
         dataset = factories.Dataset()
@@ -179,7 +180,7 @@ class TestRefreshDatastoreDatasetUpdate(object):
 
 @pytest.mark.usefixtures("clean_db", "init_db")
 class TestRefreshDatastoreDatasetList(object):
-    frequency = "5m"
+    frequency = "5"
 
     def create_test_data(self):
         dataset = factories.Dataset()
@@ -248,4 +249,104 @@ class TestRefreshDatastoreDatasetList(object):
             helpers.call_action(
                 "refresh_dataset_datastore_list",
                 context={"auth_user_obj": normal_user["name"], "ignore_auth": False},
+        )
+
+
+@pytest.mark.usefixtures("clean_db", "init_db")
+class TestRefreshDatastoreDatasetByFrequency(object):
+    frequency = "5"
+
+    def create_test_data(self):
+        dataset = factories.Dataset()
+        sysadmin = factories.Sysadmin()
+        sysadmin_obj = model.User.by_name(sysadmin["name"])
+
+        return dataset, sysadmin_obj
+
+    def test_refresh_dataset_datastore_by_frequency(self):
+        dataset, sysadmin_obj = self.create_test_data()
+        data_dict = {"package_id": dataset["id"], "frequency": self.frequency}
+
+        helpers.call_action(
+            "refresh_datastore_dataset_create",
+            context={"auth_user_obj": sysadmin_obj},
+            **data_dict,
+        )
+
+        results = helpers.call_action(
+            "refresh_dataset_datastore_by_frequency",
+            context={"auth_user_obj": sysadmin_obj},
+            **data_dict,
+        )
+        refresh_dataset_datastore = results["refresh_dataset_datastore"][0]
+
+        assert dataset["id"] in refresh_dataset_datastore["dataset_id"]
+        assert data_dict["frequency"] in refresh_dataset_datastore["frequency"]
+        assert sysadmin_obj.id in refresh_dataset_datastore["created_user_id"]
+        assert bool(refresh_dataset_datastore["package"]) == True
+
+    def test_refresh_dataset_datastore_by_frequency_no_frequency(self):
+        dataset, sysadmin_obj = self.create_test_data()
+        data_dict = {"package_id": dataset["id"], "frequency": self.frequency}
+
+        helpers.call_action(
+            "refresh_datastore_dataset_create",
+            context={"auth_user_obj": sysadmin_obj},
+            **data_dict,
+        )
+
+        with pytest.raises(ValidationError):
+            helpers.call_action(
+                "refresh_dataset_datastore_by_frequency",
+                context={"auth_user_obj": sysadmin_obj}
+            )
+
+    def test_refresh_dataset_datastore_by_frequency_wrong_frequency(self):
+        dataset, sysadmin_obj = self.create_test_data()
+        data_dict = {"package_id": dataset["id"], "frequency": self.frequency}
+
+        helpers.call_action(
+            "refresh_datastore_dataset_create",
+            context={"auth_user_obj": sysadmin_obj},
+            **data_dict,
+        )
+
+        with pytest.raises(Invalid):
+            helpers.call_action(
+                "refresh_dataset_datastore_by_frequency",
+                context={"auth_user_obj": sysadmin_obj}, 
+                frequency="36"
+            )
+
+    def test_refresh_dataset_datastore_by_frequency_anonymous(self):
+        dataset, sysadmin_obj = self.create_test_data()
+        data_dict = {"package_id": dataset["id"], "frequency": self.frequency}
+
+        helpers.call_action(
+            "refresh_datastore_dataset_create",
+            context={"auth_user_obj": sysadmin_obj},
+            **data_dict,
+        )
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_action(
+                "refresh_dataset_datastore_by_frequency",
+                context={"auth_user_obj": "", "ignore_auth": False},
+                frequency=data_dict["frequency"]
+        )
+
+    def test_refresh_dataset_datastore_by_frequency_normal_user(self):
+        dataset, sysadmin_obj = self.create_test_data()
+        data_dict = {"package_id": dataset["id"], "frequency": self.frequency}
+
+        helpers.call_action(
+            "refresh_datastore_dataset_create",
+            context={"auth_user_obj": sysadmin_obj},
+            **data_dict,
+        )
+        normal_user = factories.User()
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_action(
+                "refresh_dataset_datastore_by_frequency",
+                context={"auth_user_obj": normal_user["name"], "ignore_auth": False},
+                frequency=data_dict["frequency"]
         )

@@ -1,13 +1,18 @@
 # -*- coding: utf-8 -*-
 
 import json
+from logging import getLogger
 import click
+import logging
 import ckan.plugins.toolkit as tk
 import ckan.model as model
 
 from ckan.common import config
 
 import ckanext.datastore_refresh.model as datavic_model
+
+
+log = logging.getLogger(__name__)
 
 
 @click.group(name=u'datastore_config', short_help=u'Manage datastore_config commands')
@@ -42,8 +47,11 @@ def refresh_dataset_datastore(frequency):
         tk.error_shout("Please provide frequency")
 
     site_user = tk.get_action(u'get_site_user')({u'ignore_auth': True}, {})
-
-    datasets = tk.get_action('refresh_dataset_datastore_by_frequency')({}, {"frequency": frequency})
+    datasets = {}
+    try:
+        datasets = tk.get_action('refresh_dataset_datastore_by_frequency')({}, {"frequency": frequency})
+    except tk.Invalid as e:
+        log.error(e)
 
     if not datasets:
         click.secho("No datasets with this criteria", fg="yellow")
