@@ -148,6 +148,7 @@ def refresh_dataset_datastore_delete(context, data_dict):
     :returns: the deleted refresh_dataset_datastore
     
     """
+    toolkit.check_access("refresh_dataset_datastore_delete", context)
 
     rdd_id = data_dict['id']
     log.info(toolkit._('Deleting refresh_dataset_datastore: {0}').format(rdd_id))
