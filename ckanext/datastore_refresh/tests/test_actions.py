@@ -179,6 +179,42 @@ class TestRefreshDatastoreDatasetUpdate(object):
                 **data_dict,
             )
 
+    def test_refresh_datastore_dataset_update_annonymous(self):
+        dataset, sysadmin_obj = self.create_test_data()
+        data_dict = {"package_id": dataset["id"], "frequency": self.frequency}
+
+        helpers.call_action(
+            "refresh_datastore_dataset_create",
+            context={"auth_user_obj": sysadmin_obj},
+            **data_dict,
+        )
+
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_action(
+                "refresh_datastore_dataset_update",
+                context={"auth_user_obj": "anon_user", "ignore_auth": False},
+                **data_dict,
+            )
+
+    def test_refresh_datastore_dataset_update_normal_user(self):
+        dataset, sysadmin_obj = self.create_test_data()
+        data_dict = {"package_id": dataset["id"], "frequency": self.frequency}
+
+        helpers.call_action(
+            "refresh_datastore_dataset_create",
+            context={"auth_user_obj": sysadmin_obj},
+            **data_dict,
+        )
+
+        normal_user = factories.User()
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_action(
+                "refresh_datastore_dataset_update",
+                context={"auth_user_obj": normal_user, "ignore_auth": False},
+                **data_dict,
+            )
+
+
 @pytest.mark.usefixtures("clean_db", "init_db")
 class TestRefreshDatastoreDatasetList(object):
     frequency = "5"
@@ -233,7 +269,7 @@ class TestRefreshDatastoreDatasetList(object):
             helpers.call_action(
                 "refresh_dataset_datastore_list",
                 context={"auth_user_obj": "", "ignore_auth": False},
-        )
+            )
 
     def test_refresh_dataset_datastore_list_normal_user(self):
         dataset, sysadmin_obj = self.create_test_data()
@@ -250,7 +286,7 @@ class TestRefreshDatastoreDatasetList(object):
             helpers.call_action(
                 "refresh_dataset_datastore_list",
                 context={"auth_user_obj": normal_user["name"], "ignore_auth": False},
-        )
+            )
 
 
 @pytest.mark.usefixtures("clean_db", "init_db")
@@ -299,7 +335,7 @@ class TestRefreshDatastoreDatasetByFrequency(object):
         with pytest.raises(ValidationError):
             helpers.call_action(
                 "refresh_dataset_datastore_by_frequency",
-                context={"auth_user_obj": sysadmin_obj}
+                context={"auth_user_obj": sysadmin_obj},
             )
 
     def test_refresh_dataset_datastore_by_frequency_wrong_frequency(self):
@@ -315,8 +351,8 @@ class TestRefreshDatastoreDatasetByFrequency(object):
         with pytest.raises(Invalid):
             helpers.call_action(
                 "refresh_dataset_datastore_by_frequency",
-                context={"auth_user_obj": sysadmin_obj}, 
-                frequency="36"
+                context={"auth_user_obj": sysadmin_obj},
+                frequency="36",
             )
 
     def test_refresh_dataset_datastore_by_frequency_anonymous(self):
@@ -332,8 +368,8 @@ class TestRefreshDatastoreDatasetByFrequency(object):
             helpers.call_action(
                 "refresh_dataset_datastore_by_frequency",
                 context={"auth_user_obj": "", "ignore_auth": False},
-                frequency=data_dict["frequency"]
-        )
+                frequency=data_dict["frequency"],
+            )
 
     def test_refresh_dataset_datastore_by_frequency_normal_user(self):
         dataset, sysadmin_obj = self.create_test_data()
@@ -349,8 +385,8 @@ class TestRefreshDatastoreDatasetByFrequency(object):
             helpers.call_action(
                 "refresh_dataset_datastore_by_frequency",
                 context={"auth_user_obj": normal_user["name"], "ignore_auth": False},
-                frequency=data_dict["frequency"]
-        )
+                frequency=data_dict["frequency"],
+            )
 
 
 @pytest.mark.usefixtures("clean_db", "init_db")
@@ -364,7 +400,7 @@ class TestRefreshDatastoreDatasetDelete(object):
 
         return dataset, sysadmin_obj
 
-    @pytest.mark.usefixtures(u"with_request_context")
+    @pytest.mark.usefixtures("with_request_context")
     def test_refresh_dataset_datastore_delete(self, app):
         dataset, sysadmin_obj = self.create_test_data()
         data_dict = {"package_id": dataset["id"], "frequency": self.frequency}
@@ -379,7 +415,7 @@ class TestRefreshDatastoreDatasetDelete(object):
             "refresh_dataset_datastore_list",
             context={"auth_user_obj": sysadmin_obj},
         )
-        _id = _list['refresh_dataset_datastore'][0]['id']
+        _id = _list["refresh_dataset_datastore"][0]["id"]
 
         env = {"REMOTE_USER": str(sysadmin_obj.name)}
         url = url_for("datastore_config.datastore_refresh_config")
@@ -402,8 +438,8 @@ class TestRefreshDatastoreDatasetDelete(object):
             "refresh_dataset_datastore_list",
             context={"auth_user_obj": sysadmin_obj},
         )
-        _id = _list['refresh_dataset_datastore'][0]['id']
-        env = {"REMOTE_USER": 'anonymous'}
+        _id = _list["refresh_dataset_datastore"][0]["id"]
+        env = {"REMOTE_USER": "anonymous"}
         url = url_for("datastore_config.datastore_refresh_config")
         postparams = {"delete_config": _id}
 
@@ -424,7 +460,7 @@ class TestRefreshDatastoreDatasetDelete(object):
             context={"auth_user_obj": sysadmin_obj},
         )
         normal_user = factories.User()
-        _id = _list['refresh_dataset_datastore'][0]['id']
+        _id = _list["refresh_dataset_datastore"][0]["id"]
         env = {"REMOTE_USER": str(normal_user["name"])}
         url = url_for("datastore_config.datastore_refresh_config")
         postparams = {"delete_config": _id}
@@ -443,7 +479,7 @@ class TestRefreshDatastoreDatasetDelete(object):
 
         with pytest.raises(ValidationError):
             helpers.call_action(
-            "refresh_dataset_datastore_delete",
-            context={"auth_user_obj": sysadmin_obj},
-            id='wrong_id',
-        )
+                "refresh_dataset_datastore_delete",
+                context={"auth_user_obj": sysadmin_obj},
+                id="wrong_id",
+            )

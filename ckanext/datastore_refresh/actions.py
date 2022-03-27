@@ -9,7 +9,7 @@ from ckan.lib.dictization import table_dictize
 
 from ckanext.datastore_refresh.model import RefreshDatasetDatastore as rdd
 from ckanext.datastore_refresh.helpers import dictize_two_objects, get_frequency_options
-from ckanext.datastore_refresh.validation import validate_frequency_choices
+from ckanext.datastore_refresh.validation import validate_frequency_options
 
 log = logging.getLogger(__name__)
 ValidationError = toolkit.ValidationError
@@ -33,8 +33,8 @@ def refresh_datastore_dataset_create(context, data_dict):
     if not data_dict.get('frequency'):
         raise ValidationError(toolkit._('No frequency provided'))
 
-    valid_choices = get_frequency_options()
-    validate_frequency_choices(data_dict.get('frequency'), valid_choices)
+    valid_options = get_frequency_options()
+    validate_frequency_options(data_dict.get('frequency'), valid_options)
 
     if not data_dict.get('package_id'):
         raise ValidationError(toolkit._('No dataset_id provided'))
@@ -79,6 +79,8 @@ def refresh_datastore_dataset_update(context, data_dict):
     if not data_dict.get('package_id'):
         raise ValidationError(toolkit._('No dataset_id provided'))
 
+    logic.check_access('refresh_datastore_dataset_update', context)
+
     rdd_obj = rdd.get_by_package_id(data_dict['package_id'])
     if not rdd_obj:
         log.error(toolkit._('Refresh_dataset_datastore not found: {0}').format(data_dict['package_id']))
@@ -121,8 +123,8 @@ def refresh_dataset_datastore_by_frequency(context, data_dict):
     if not data_dict.get('frequency'):
         raise ValidationError(toolkit._('No frequency provided'))
 
-    valid_choices = get_frequency_options()
-    validate_frequency_choices(data_dict.get('frequency'), valid_choices)
+    valid_options = get_frequency_options()
+    validate_frequency_options(data_dict.get('frequency'), valid_options)
 
     toolkit.check_access("refresh_dataset_datastore_by_frequency", context)
 
