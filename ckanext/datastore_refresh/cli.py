@@ -10,7 +10,7 @@ import ckan.model as model
 from ckan.common import config
 
 import ckanext.datastore_refresh.model as datavic_model
-import ckanext.datastore_refresh.choices as choices
+import ckanext.datastore_refresh.helpers as helpers
 
 
 log = logging.getLogger(__name__)
@@ -107,13 +107,13 @@ def _submit_resource(dataset, resource, user):
 
 @datastore_config.command("available_choices", short_help="Shows available choices")
 def available_choices():
-    _choices = []
-    data = choices.load_options()
+    frequency_options = []
+    data = helpers.get_frequency_options()
 
     for row in data:
         if row['value'] != '0':
-            _choices.append(row['value'])
-    click.secho(f'Available choices: {_choices}', fg="green")
+            frequency_options.append(row['value'])
+    click.secho(f'Available choices: {frequency_options}', fg="green")
 
 
 def get_commands():
