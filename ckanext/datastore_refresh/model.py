@@ -65,7 +65,7 @@ class RefreshDatasetDatastore(DomainObject):
 
     def get_by_package_id(package_id):
         query = Session.query(RefreshDatasetDatastore).filter(RefreshDatasetDatastore.dataset_id==package_id)
-        return query.one()
+        return query.first()
 
 
 mapper(RefreshDatasetDatastore, refresh_dataset_datastore_table,

@@ -66,6 +66,7 @@ def refresh_datastore_dataset_create(context, data_dict):
 
     return table_dictize(rdd_obj, context)
 
+
 def refresh_datastore_dataset_update(context, data_dict):
     """
     Update a refresh_dataset_datastore configuration
@@ -84,11 +85,12 @@ def refresh_datastore_dataset_update(context, data_dict):
     rdd_obj = rdd.get_by_package_id(data_dict['package_id'])
     if not rdd_obj:
         log.error(toolkit._('Refresh_dataset_datastore not found: {0}').format(data_dict['package_id']))
+        return None
     
     log.info(toolkit._('Updating refresh_dataset_datastore: {0}').format(rdd_obj))
     rdd_obj.datastore_last_refreshed = datetime.datetime.utcnow()
     rdd_obj.save()
-
+    return table_dictize(rdd_obj, context)
 
 @toolkit.side_effect_free
 def refresh_dataset_datastore_list(context, data_dict=None):
@@ -109,6 +111,7 @@ def refresh_dataset_datastore_list(context, data_dict=None):
         res_dict = dictize_two_objects({'model': model}, results)
 
     return res_dict
+
 
 def refresh_dataset_datastore_by_frequency(context, data_dict):
     """
@@ -137,7 +140,6 @@ def refresh_dataset_datastore_by_frequency(context, data_dict):
 
     data_dict = dictize_two_objects(context, results)
     return data_dict
-
 
 
 def refresh_dataset_datastore_delete(context, data_dict):
