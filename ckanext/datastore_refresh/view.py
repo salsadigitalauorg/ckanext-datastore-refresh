@@ -1,5 +1,6 @@
 import logging
 import ckan.model as model
+import ckan.logic as logic
 import ckan.plugins.toolkit as toolkit
 
 from flask import Blueprint
@@ -15,11 +16,25 @@ log = logging.getLogger(__name__)
 datastore_config = Blueprint('datastore_config', __name__)
 
 
+@datastore_config.before_request
+def before_request():
+    try:
+        context = {
+            "model": model, "user": toolkit.g.user, 
+            "auth_user_obj": toolkit.g.userobj
+        }
+        logic.check_access(u'sysadmin', context)
+    except logic.NotAuthorized:
+        toolkit.base.abort(403, toolkit._(u'Need to be system administrator to administer'))
+
+
 class DatastoreRefreshConfigView(MethodView):
 
     def _setup_extra_template_variables(self):
+        context = {}
         user = toolkit.g.userobj
-        context = {u'for_view': True, u'user': user.name, u'auth_user_obj': user}
+        if user:
+            context = {u'for_view': True, u'user': user.name, u'auth_user_obj': user}
         #data_dict = {u'user_obj': user, u'include_datasets': True}
         return context
 
@@ -46,10 +61,14 @@ class DatastoreRefreshConfigView(MethodView):
         if params.get('delete_config'):
             get_action('refresh_dataset_datastore_delete')(context, {'id': params.get('delete_config')})
             h.flash_success(toolkit._("Succesfully deleted configuration"))
-            return self.get()
+            return h.redirect_to('datastore_config.datastore_refresh_config')
 
         if not params.get('dataset'):
             h.flash_error(toolkit._('Please select dataset'))
+            return self.get()
+
+        if params.get('frequency') == '0' or not params.get('frequency'):
+            h.flash_error(toolkit._('Please select frequency'))
             return self.get()
         try:
             dataset = get_action('package_show')(context, {'id': params.get('dataset')})
@@ -58,13 +77,13 @@ class DatastoreRefreshConfigView(MethodView):
             return self.get()
 
         config_dict = {
-            "dataset_id": dataset.get('id'),
+            "package_id": dataset.get('id'),
             "frequency": params.get('frequency')
         }
         results = get_action('refresh_datastore_dataset_create')(context, config_dict)
         extra_vars = self._setup_extra_template_variables()
         extra_vars["data"] = results
-        return render('admin/datastore_refresh.html', extra_vars=extra_vars)
+        return h.redirect_to('datastore_config.datastore_refresh_config')
 
 
 def register_plugin_rules(blueprint):

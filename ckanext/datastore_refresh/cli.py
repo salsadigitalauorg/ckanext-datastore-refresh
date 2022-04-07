@@ -1,10 +1,19 @@
 # -*- coding: utf-8 -*-
 
+import json
+from logging import getLogger
 import click
+import logging
 import ckan.plugins.toolkit as tk
+import ckan.model as model
+
+from ckan.common import config
 
 import ckanext.datastore_refresh.model as datavic_model
 import ckanext.datastore_refresh.helpers as helpers
+
+
+log = logging.getLogger(__name__)
 
 
 @click.group(name=u'datastore_config', short_help=u'Manage datastore_config commands')
@@ -39,22 +48,27 @@ def refresh_dataset_datastore(frequency):
         tk.error_shout("Please provide frequency")
 
     site_user = tk.get_action(u'get_site_user')({u'ignore_auth': True}, {})
-
-    datasets = tk.get_action('refresh_dataset_datastore_by_frequency')({}, {"frequency": frequency})
+    datasets = {}
+    try:
+        datasets = tk.get_action('refresh_dataset_datastore_by_frequency')({}, {"frequency": frequency})
+    except tk.Invalid as e:
+        log.error(e)
 
     if not datasets:
         click.secho("No datasets with this criteria", fg="yellow")
+        return []
 
-    for rdd in datasets:
-        dataset = rdd.get('Package')
-        resources = dataset.resources
-        click.echo(f'Processing dataset {dataset.name} with {len(resources)} resources')
-        for resource in resources:
+    for dataset in datasets["refresh_dataset_datastore"]:
+        pkg_id = dataset['package']['id']
+        pkg_dict = tk.get_action('package_show')({"model": model}, {'id': pkg_id})
+        click.echo(f'Processing dataset {pkg_dict["name"]} with {len(pkg_dict["resources"])} resources')
+
+        for res in pkg_dict['resources']:
             try:
-                _submit_resource(dataset, resource, site_user)
+                _submit_resource(pkg_dict, res, site_user)
             except Exception as e:
                 click.secho(e, fg="red")
-                click.secho(f'ERROR submitting resource {resource.id}', fg="red")
+                click.secho(f'ERROR submitting resource {res["id"]}', fg="red")
                 continue
 
     click.echo(f"Finished refresh_dataset_datastore for frequency {frequency}")
@@ -67,20 +81,20 @@ def _submit_resource(dataset, resource, user):
     # import here, so that that loggers are setup
     from ckanext.xloader.plugin import XLoaderFormats
 
-    if not XLoaderFormats.is_it_an_xloader_format(resource.format):
-        click.echo(f'Skipping resource {resource.id} because format "{resource.format}" is not configured to be xloadered')
+    if not XLoaderFormats.is_it_an_xloader_format(resource["format"]):
+        click.echo(f'Skipping resource {resource["id"]} because format "{resource["format"]}" is not configured to be xloadered')
         return
-    if resource.url_type in ('datapusher', 'xloader'):
-        click.echo(f'Skipping resource {resource.id} because url_type "{resource.url_type}" '
+    if resource["url_type"] in ('datapusher', 'xloader'):
+        click.echo(f'Skipping resource {resource["id"]} because url_type "{resource["url_type"]}" '
                    'means resource.url points to the datastore '
                    'already, so loading would be circular.')
         return
 
-    click.echo(f'Submitting /dataset/{dataset.name}/resource/{resource.id}\n'
-               f'url={resource.url}\n'
-               f'format={resource.format}')
+    click.echo(f'Submitting /dataset/{dataset["name"]}/resource/{resource["id"]}\n'
+               f'url={resource["url"]}\n'
+               f'format={resource["format"]}')
     data_dict = {
-        'resource_id': resource.id,
+        'resource_id': resource["id"],
         'ignore_hash': False,
     }
 
@@ -89,6 +103,17 @@ def _submit_resource(dataset, resource, user):
         click.secho('...ok', fg="green")
     else:
         click.secho('ERROR submitting resource', fg="red")
+
+
+@datastore_config.command("available_choices", short_help="Shows available choices")
+def available_choices():
+    frequency_options = []
+    data = helpers.get_frequency_options()
+
+    for row in data:
+        if row['value'] != '0':
+            frequency_options.append(row['value'])
+    click.secho(f'Available choices: {frequency_options}', fg="green")
 
 
 def get_commands():

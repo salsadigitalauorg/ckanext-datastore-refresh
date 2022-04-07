@@ -1,8 +1,8 @@
-from ckan.model.meta import metadata, mapper, Session, engine
+from ckan.model.meta import metadata, mapper, Session
 from ckan.model.domain_object import DomainObject
 from ckan.model.types import make_uuid
 from ckan.model.package import Package
-from sqlalchemy import types, Column, Table, ForeignKey, orm, text
+from sqlalchemy import types, Column, Table, ForeignKey, orm
 
 import datetime
 import logging    
@@ -80,5 +80,5 @@ properties={
 
 
 def setup():
-    if not metadata.tables['refresh_dataset_datastore']:
-        metadata.create(refresh_dataset_datastore_table)
+    if not refresh_dataset_datastore_table.exists():
+        refresh_dataset_datastore_table.create()
