@@ -48,9 +48,10 @@ def refresh_dataset_datastore(frequency):
         tk.error_shout("Please provide frequency")
 
     site_user = tk.get_action(u'get_site_user')({u'ignore_auth': True}, {})
+    context = {'user': site_user.get('name')}
     datasets = {}
     try:
-        datasets = tk.get_action('refresh_dataset_datastore_by_frequency')({}, {"frequency": frequency})
+        datasets = tk.get_action('refresh_dataset_datastore_by_frequency')(context, {"frequency": frequency})
     except tk.Invalid as e:
         log.error(e)
 
@@ -60,12 +61,12 @@ def refresh_dataset_datastore(frequency):
 
     for dataset in datasets["refresh_dataset_datastore"]:
         pkg_id = dataset['package']['id']
-        pkg_dict = tk.get_action('package_show')({"model": model}, {'id': pkg_id})
+        pkg_dict = tk.get_action('package_show')(context, {'id': pkg_id})
         click.echo(f'Processing dataset {pkg_dict["name"]} with {len(pkg_dict["resources"])} resources')
 
         for res in pkg_dict['resources']:
             try:
-                _submit_resource(pkg_dict, res, site_user)
+                _submit_resource(pkg_dict, res, context)
             except Exception as e:
                 click.secho(e, fg="red")
                 click.secho(f'ERROR submitting resource {res["id"]}', fg="red")
@@ -74,7 +75,7 @@ def refresh_dataset_datastore(frequency):
     click.echo(f"Finished refresh_dataset_datastore for frequency {frequency}")
 
 
-def _submit_resource(dataset, resource, user):
+def _submit_resource(dataset, resource, context):
     '''resource: resource dictionary
     '''
     # Copied and modifed from ckan/default/src/ckanext-xloader/ckanext/xloader/cli.py to check for Xloader formats before submitting
@@ -98,7 +99,7 @@ def _submit_resource(dataset, resource, user):
         'ignore_hash': False,
     }
 
-    success = tk.get_action('xloader_submit')({'user': user['name'], "ignore_auth": True}, data_dict)
+    success = tk.get_action('xloader_submit')(context, data_dict)
     if success:
         click.secho('...ok', fg="green")
     else:

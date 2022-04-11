@@ -10,7 +10,7 @@ from ckanext.datastore_refresh.schema import default_frequency_options_schema
 log = logging.getLogger(__name__)
 
 DEFAULT_VALUES = [
-    {"value": "5", "text": "5 minutes"},
+    {"value": "10", "text": "10 minutes"},
     {"value": "120", "text": "2 hours"},
     {"value": "1440", "text": "Daily"},
 ]
