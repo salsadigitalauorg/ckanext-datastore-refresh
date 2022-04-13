@@ -64,19 +64,57 @@ ckan db upgrade
 ```
 to execute the database migration script
 
-Also there is CLI command to initialize the table:
+## CLI
+
+
+There is CLI command to initialize the table:
 ```
 ckan -c /path/to/ckan.ini datastore_config init_db
 ```
-Configuration is done by the CKAN admin menu
-
+You can execute refresh datastore using the command `refresh_dataset_datastore` and passing the frequency interval in minutes as parameter. The frequency value must be defined in the `frequency_options.json` configuration file. This will reupload the data from resource to datastore
 ```
-@hourly datastore_config -c /path/to/ckan.ini refresh_dataset_datastore 10
+@hourly ckan -c /path/to/ckan.ini datastore_config refresh_dataset_datastore 10
 ```
 10 - frequency  to refresh the datastore  (in minutes)
-Cron jobs can be set by the desired frequency which currently is set to 10 min, 2 hours or 24 hours
+Cron jobs can be set by the desired frequency which currently is set to 10 min, 2 hours(120 minutes) or 24 hours(1440 minutes).
 
-#TODO: Make frequencies configurable via ckan.ini file
+Values defined in the `frequency_options` can be listed using the CLI command `available_choices` 
+```
+ckan -c /path/to/ckan.ini datastore_config available_choices
+```
+## Frequency options
+
+To customize frequency option, we can do it via the 
+`frequency_options.json` file that could be set in the `ckan.ini` 
+
+```
+ckanext.datastore_refresh.frequency_options = your/frequency/options/path.json
+```
+
+Default frequency options is set as this example:
+```
+{"frequency_options": [
+    {"value": "0", "text": "Select frequency"},
+    {"value": "2", "text": "2 minutes"},
+    {"value": "5", "text": "5 minutes"},
+    {"value": "10", "text": "10 minutes"},
+    {"value": "20", "text": "20 minutes"},
+    {"value": "30", "text": "30 minutes"},
+    {"value": "60", "text": "1 hour"},
+    {"value": "120", "text": "2 hours"},
+    {"value": "180", "text": "3 hours"},
+    {"value": "240", "text": "4 hours"},
+    {"value": "300", "text": "5 hours"},
+    {"value": "360", "text": "6 hours"},
+    {"value": "420", "text": "7 hours"},
+    {"value": "480", "text": "8 hours"},
+    {"value": "540", "text": "9 hours"},
+    {"value": "600", "text": "10 hours"},
+    {"value": "1440", "text": "Daily"}
+]}
+```
+Values are defined in minutes 
+
 ## Tests
 
 To run the tests, do:
