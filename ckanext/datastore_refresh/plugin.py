@@ -1,12 +1,10 @@
-import requests
 import logging
 
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
-
 import ckanext.xloader.interfaces as xloader_interfaces
-from ckanext.datastore_refresh import actions, auth, helpers, cli, view
 
+from ckanext.datastore_refresh import actions, auth, cli, helpers, view
 
 log = logging.getLogger(__name__)
 
@@ -75,23 +73,4 @@ class DatastoreRefreshPlugin(plugins.SingletonPlugin):
         return True
 
     def after_upload(self, context, resource_dict, dataset_dict):
-        try:
-            cache_base_url = toolkit.config.get('ckanext.datastore_refresh.cache_base_url')
-            if cache_base_url:
-                package_id = dataset_dict.get('id')
-                rdd = toolkit.get_action('refresh_datastore_dataset_update')(context, {'package_id': package_id})
-                if rdd:
-                    cache_username = toolkit.config.get('ckanext.datastore_refresh.cache_username')
-                    cache_pass = toolkit.config.get('ckanext.datastore_refresh.cache_pass')
-                    auth = None
-                    if cache_username and cache_pass:
-                        auth = (cache_username, cache_pass)
-                    url = f"{cache_base_url}/api/datastore_search?resource_id={resource_dict.get('id')}"
-                    # Ping CDN to purge/clear cache
-                    response = requests.get(url, auth=auth)
-                    if response.ok:
-                        log.info(f"Successfully purged cache for resource {resource_dict.get('id')}")
-                    else:
-                        log.error(f"Failed to purged cache for resource {resource_dict.get('id')}: {response.reason}")
-        except Exception as ex:
-            log.error(ex)
+        helpers.purge_section_cache(context, resource_dict, dataset_dict)
