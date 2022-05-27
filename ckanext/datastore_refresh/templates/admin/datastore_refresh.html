@@ -41,10 +41,11 @@
           <table class="table table-bordered table-striped table-condensed">
             <thead>
               <tr>
-                <th width="50%">Dataset</th>
+                <th width="45%">Dataset</th>
                 <th width="10%">Frequency</th>
                 <th width="15%">Job created</th>
                 <th width="10%">Last refresh</th>
+                <th width="10%">Edit Frequency</th>
                 <th width="10%">Delete</th>
               </tr>
             </thead>
@@ -55,13 +56,20 @@
                 <td> {{ h.get_datasore_refresh_config_option(refresh_config.frequency) }} </td>
                 <td> {{ h.render_datetime(refresh_config.created_at) }} </td>
                 <td> {{ h.time_ago_from_datetime(refresh_config.datastore_last_refreshed) or 'No data'}} </td>
-                <td> <button class="btn btn-danger" type="submit" name="delete_config" value="{{refresh_config.id}}"> Delete</button> </td>
+                <td>
+                    <select name="edit_frequency">
+                      {% for option in h.get_frequency_options() %}
+                        <option value="{{ option.value }}"{% if option.value == selected %} selected{% endif %}>{{option.value}}</option>
+                      {% endfor %}
+                    </select>
+                    <button class="btn btn-primary" type="submit" name="id" value="{{refresh_config.id}}">Edit</button>
+                </td>
+                <td><button class="btn btn-danger" type="submit" name="delete_config" value="{{refresh_config.id}}"> Delete</button></td>
               {% endfor%}
             </tbody>
           </table>
         </small>
       </div>
-      
   </form>
 </div>
 

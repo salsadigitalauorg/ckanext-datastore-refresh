@@ -63,6 +63,12 @@ class DatastoreRefreshConfigView(MethodView):
             h.flash_success(toolkit._("Succesfully deleted configuration"))
             return h.redirect_to('datastore_config.datastore_refresh_config')
 
+        if params.get('edit_frequency'):
+            data_dict = {'id': params.get('id'), 'frequency': params.get('edit_frequency')}
+            get_action('refresh_dataset_datastore_edit_frequency')(context, data_dict)
+            h.flash_success(toolkit._("Succesfully updated configuration"))
+            return h.redirect_to('datastore_config.datastore_refresh_config')
+
         if not params.get('dataset'):
             h.flash_error(toolkit._('Please select dataset'))
             return self.get()
