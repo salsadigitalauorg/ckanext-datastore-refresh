@@ -20,3 +20,7 @@ def refresh_dataset_datastore_delete(context, data_dict):
 
 def refresh_dataset_datastore_edit_frequency(context, data_dict):
     return {'success': False, 'msg': 'Not authorized'}
+
+
+def refresh_dataset_datastore_show(context, data_dict):
+    return {'success': False, 'msg': 'Not authorized'}

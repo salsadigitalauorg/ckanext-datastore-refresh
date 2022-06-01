@@ -32,9 +32,9 @@
       ) }}
 
       <button class="btn btn-primary">Add</button>
-      
-      <hr />
 
+      <hr />
+  </form>
       <div>
         <h3>Dataset datastore refresh list</h3>
         <small>
@@ -56,21 +56,15 @@
                 <td> {{ h.get_datasore_refresh_config_option(refresh_config.frequency) }} </td>
                 <td> {{ h.render_datetime(refresh_config.created_at) }} </td>
                 <td> {{ h.time_ago_from_datetime(refresh_config.datastore_last_refreshed) or 'No data'}} </td>
-                <td>
-                    <select name="edit_frequency">
-                      {% for option in h.get_frequency_options() %}
-                        <option value="{{ option.value }}"{% if option.value == selected %} selected{% endif %}>{{option.value}}</option>
-                      {% endfor %}
-                    </select>
-                    <button class="btn btn-primary" type="submit" name="id" value="{{refresh_config.id}}">Edit</button>
-                </td>
-                <td><button class="btn btn-danger" type="submit" name="delete_config" value="{{refresh_config.id}}"> Delete</button></td>
+                <td><a href="{{ h.url_for('datastore_config.datastore_refresh_config_edit', id=refresh_config.id) }}" class="btn btn-primary" type="submit" name="id">Edit</td>
+                <form action="{{ h.url_for('datastore_config.datastore_refresh_config') }}" method="post" class="form-horizontal">
+                  <td><button class="btn btn-danger" type="submit" name="delete_config" value="{{refresh_config.id}}"> Delete</button></td>
+                </form>
               {% endfor%}
             </tbody>
           </table>
         </small>
       </div>
-  </form>
 </div>
 
 {% endblock %}
