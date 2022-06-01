@@ -117,5 +117,32 @@ def available_choices():
     click.secho(f'Available choices: {frequency_options}', fg="green")
 
 
+@datastore_config.command("edit_frequency", short_help="Edit a refresh_dataset_datastore frequency")
+@click.argument(u"old_freq")
+@click.argument(u"new_freq")
+def edit_frequency(old_freq, new_freq):
+
+    site_user = tk.get_action(u'get_site_user')({u'ignore_auth': True}, {})
+    context = {'user': site_user.get('name')}
+    datasets = {}
+    try:
+        datasets = tk.get_action('refresh_dataset_datastore_by_frequency')(context, {"frequency": old_freq})
+    except tk.Invalid as e:
+        log.error(e)
+
+    if not datasets:
+        click.secho("No datasets with this criteria", fg="yellow")
+        return []
+
+    for dataset in datasets["refresh_dataset_datastore"]:
+        try:
+            data_dict = {"id": dataset["id"], "frequency": new_freq}
+            dataset_name = dataset['package']['name']
+            tk.get_action('refresh_dataset_datastore_edit_frequency')(context, data_dict)
+            click.secho(f"Successfully changed the refresh_dataset_datastore frequency from {old_freq} to {new_freq} in {dataset_name}", fg="green")
+        except tk.Invalid as e:
+            click.secho(e, fg="red")
+
+
 def get_commands():
     return [datastore_config]

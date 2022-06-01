@@ -163,3 +163,49 @@ def refresh_dataset_datastore_delete(context, data_dict):
     else:
         log.error(toolkit._('Refresh_dataset_datastore not found: {0}').format(rdd_id))
         raise ValidationError("Not found")
+
+
+def refresh_dataset_datastore_edit_frequency(context, data_dict):
+    """
+    Edit a refresh_dataset_datastore frequency
+
+    :param id: id of the refresh_dataset_datastore
+    :type id: string
+    :param frequency: frequency of the refresh
+    :type frequency: string
+
+    """
+    if not data_dict.get('frequency'):
+        raise ValidationError(toolkit._('No frequency provided'))
+
+    if not data_dict.get('id'):
+        raise ValidationError(toolkit._('No id provided'))
+
+    rdd_id = data_dict.get('id')
+    frequency = data_dict.get('frequency')
+
+    valid_options = get_frequency_options()
+    validate_frequency_options(frequency, valid_options)
+    toolkit.check_access("refresh_dataset_datastore_edit_frequency", context)
+    log.info(toolkit._('Editing refresh_dataset_datastore: {0}').format(rdd_id))
+
+    rdd_obj = rdd.get(rdd_id)
+    if rdd_obj:
+        rdd_obj.frequency = frequency
+        rdd_obj.save()
+    else:
+        log.error(toolkit._('Refresh_dataset_datastore not found: {0}').format(rdd_id))
+        raise ValidationError("Not found")
+
+
+@toolkit.side_effect_free
+def refresh_dataset_datastore_show(context, data_dict):
+    rdd_id = data_dict.get('id')
+    toolkit.check_access("refresh_dataset_datastore_edit_frequency", context)
+
+    rdd_obj = rdd.get(rdd_id)
+    if rdd_obj:
+       return table_dictize(rdd_obj, context)
+    else:
+        log.error(toolkit._('Refresh_dataset_datastore not found: {0}').format(rdd_id))
+        raise ValidationError("Not found")

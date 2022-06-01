@@ -1,0 +1,38 @@
+{% extends "admin/base.html" %}
+{% import 'macros/form.html' as form %}
+
+{% block primary_content_inner %}
+
+<div id="datastore_config">
+  <form action="" method="post" class="form-horizontal">
+    <h3>Edit dataset datastore refresh frequency</h3>
+      {% set datastore_refresh_configs = h.get_datastore_refresh_configs() %}
+      {% set dataset_attrs ={'data-module': 'autocomplete', 'data-module-dataset': '', 
+            'data-module-label': 'title',
+            'data-module-tags': 'false',
+            'data-module-createtags': 'false',
+            'data-module-source': '/api/2/util/dataset/autocomplete?incomplete=?'} %}
+      
+      {{ form.input(
+        'dataset', 
+        label=_('Dataset'),
+        value=name,
+        placeholder = "Select dataset", 
+        error="", 
+        classes=['control-full'],
+        attrs=dataset_attrs )}}
+
+      {{ form.select(
+        'frequency',
+        label=_('Frequency'),
+        selected=" ",
+        options = h.get_frequency_options(),
+        error=errors if errors else None
+      ) }}
+
+      <button class="btn btn-primary">Update</button>
+
+      <hr />
+  </form>
+
+{% endblock %}
