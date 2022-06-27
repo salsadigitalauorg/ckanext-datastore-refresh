@@ -54,4 +54,4 @@ import ckanext.datastore_refresh.plugin as plugin
 @pytest.mark.ckan_config("ckan.plugins", "datastore_refresh")
 @pytest.mark.usefixtures("with_plugins")
 def test_plugin():
-    assert plugin_loaded("datastore_refresh")
+    assert plugin.plugin_loaded("datastore_refresh")
