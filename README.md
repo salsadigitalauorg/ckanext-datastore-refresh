@@ -4,7 +4,7 @@
 This extension provides a option to refresh/reupload the datastore data when resource is uploaded by URL. Because there is no mechanism within CKAN core to track the changes in the files after the upload, we need to create cronjob that would call the CLI command to refresh data defined by the configuration panel as CKAN sysadmin.
 
 
-## Requirements [TBD]
+## Requirements
 
 Works with CKAN 2.9.x and above.
 
@@ -64,19 +64,89 @@ ckan db upgrade
 ```
 to execute the database migration script
 
-Also there is CLI command to initialize the table:
+## CLI
+
+
+There is CLI command to initialize the table:
 ```
 ckan -c /path/to/ckan.ini datastore_config init_db
 ```
-Configuration is done by the CKAN admin menu
-
+You can execute refresh datastore using the command `refresh_dataset_datastore` and passing the frequency interval in minutes as parameter. The frequency value must be defined in the `frequency_options.json` configuration file. This will reupload the data from resource to datastore
 ```
-@hourly datastore_config -c /path/to/ckan.ini refresh_dataset_datastore 10
+@hourly ckan -c /path/to/ckan.ini datastore_config refresh_dataset_datastore 10
 ```
 10 - frequency  to refresh the datastore  (in minutes)
-Cron jobs can be set by the desired frequency which currently is set to 10 min, 2 hours or 24 hours
+Cron jobs can be set by the desired frequency of updating. Configurable via frequency_options
 
-#TODO: Make frequencies configurable via ckan.ini file
+Values defined in the `frequency_options` can be listed using the CLI command `available_choices`
+```
+ckan -c /path/to/ckan.ini datastore_config available_choices
+```
+## Frequency options
+
+To customize frequency option, we can do it via the 
+`frequency_options.json` file that could be set in the `ckan.ini` 
+
+```
+ckanext.datastore_refresh.frequency_options = your/frequency/options/path.json
+```
+
+Default frequency options is set as this example:
+```
+{"frequency_options": [
+    {"value": "0", "text": "Select frequency"},
+    {"value": "2", "text": "2 minutes"},
+    {"value": "5", "text": "5 minutes"},
+    {"value": "10", "text": "10 minutes"},
+    {"value": "20", "text": "20 minutes"},
+    {"value": "30", "text": "30 minutes"},
+    {"value": "60", "text": "1 hour"},
+    {"value": "120", "text": "2 hours"},
+    {"value": "180", "text": "3 hours"},
+    {"value": "240", "text": "4 hours"},
+    {"value": "300", "text": "5 hours"},
+    {"value": "360", "text": "6 hours"},
+    {"value": "420", "text": "7 hours"},
+    {"value": "480", "text": "8 hours"},
+    {"value": "540", "text": "9 hours"},
+    {"value": "600", "text": "10 hours"},
+    {"value": "1440", "text": "Daily"}
+]}
+```
+Values are defined in minutes
+
+## API
+
+There are API endpoints that could be used to interact with the datasets
+
+`refresh_datastore_dataset_create`
+----------------------------------
+Creates the refreshing record in the database for selected dataset and frequency
+
+`refresh_datastore_dataset_update`
+----------------------------------
+Updates selected record for the dataset
+
+`refresh_dataset_datastore_list`
+--------------------------------
+Returns all records for refreshing
+
+`refresh_dataset_datastore_by_frequency`
+Returns all records by refreshing frequency
+
+`refresh_dataset_datastore_delete`
+----------------------------------
+Deletes a refreshing record
+
+`refresh_dataset_datastore_edit_frequency`
+------------------------------------------
+Edits a frequency for selected record
+
+`refresh_dataset_datastore_show`
+Shows refreshing record for the dataset
+
+
+
 ## Tests
 
 To run the tests, do:
