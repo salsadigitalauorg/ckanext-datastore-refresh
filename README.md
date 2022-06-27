@@ -76,9 +76,9 @@ You can execute refresh datastore using the command `refresh_dataset_datastore` 
 @hourly ckan -c /path/to/ckan.ini datastore_config refresh_dataset_datastore 10
 ```
 10 - frequency  to refresh the datastore  (in minutes)
-Cron jobs can be set by the desired frequency which currently is set to 10 min, 2 hours(120 minutes) or 24 hours(1440 minutes).
+Cron jobs can be set by the desired frequency of updating. Configurable via frequency_options
 
-Values defined in the `frequency_options` can be listed using the CLI command `available_choices` 
+Values defined in the `frequency_options` can be listed using the CLI command `available_choices`
 ```
 ckan -c /path/to/ckan.ini datastore_config available_choices
 ```
@@ -113,7 +113,39 @@ Default frequency options is set as this example:
     {"value": "1440", "text": "Daily"}
 ]}
 ```
-Values are defined in minutes 
+Values are defined in minutes
+
+## API
+
+There are API endpoints that could be used to interact with the datasets
+
+`refresh_datastore_dataset_create`
+----------------------------------
+Creates the refreshing record in the database for selected dataset and frequency
+
+`refresh_datastore_dataset_update`
+----------------------------------
+Updates selected record for the dataset
+
+`refresh_dataset_datastore_list`
+--------------------------------
+Returns all records for refreshing
+
+`refresh_dataset_datastore_by_frequency`
+Returns all records by refreshing frequency
+
+`refresh_dataset_datastore_delete`
+----------------------------------
+Deletes a refreshing record
+
+`refresh_dataset_datastore_edit_frequency`
+------------------------------------------
+Edits a frequency for selected record
+
+`refresh_dataset_datastore_show`
+Shows refreshing record for the dataset
+
+
 
 ## Tests
 
