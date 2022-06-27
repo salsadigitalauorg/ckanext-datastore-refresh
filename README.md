@@ -4,7 +4,7 @@
 This extension provides a option to refresh/reupload the datastore data when resource is uploaded by URL. Because there is no mechanism within CKAN core to track the changes in the files after the upload, we need to create cronjob that would call the CLI command to refresh data defined by the configuration panel as CKAN sysadmin.
 
 
-## Requirements [TBD]
+## Requirements
 
 Works with CKAN 2.9.x and above.
 
