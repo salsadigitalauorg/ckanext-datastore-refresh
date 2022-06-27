@@ -1,14 +1,14 @@
-# datavic_admin-js:
+# datastore_refresh-js:
 #   filter: rjsmin
-#   output: ckanext-datavic_admin/%(version)s-datavic_admin.js
+#   output: ckanext-datastore_refresh/%(version)s-datastore_refresh.js
 #   contents:
-#     - js/datavic_admin.js
+#     - js/datastore_refresh.js
 #   extra:
 #     preload:
 #       - base/main
 
-# datavic_admin-css:
+# datastore_refresh-css:
 #   filter: cssrewrite
-#   output: ckanext-datavic_admin/%(version)s-datavic_admin.css
+#   output: ckanext-datastore_refresh/%(version)s-datastore_refresh.css
 #   contents:
-#     - css/datavic_admin.css
+#     - css/datastore_refresh.css

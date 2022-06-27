@@ -47,10 +47,10 @@ To temporary patch the CKAN configuration for the duration of a test you can use
     def test_some_action():
         pass
 """
-import ckanext.datavic_admin.plugin as plugin
+import ckanext.datastore_refresh.plugin as plugin
 
 
-@pytest.mark.ckan_config("ckan.plugins", "datavic_admin")
+@pytest.mark.ckan_config("ckan.plugins", "datastore_refresh")
 @pytest.mark.usefixtures("with_plugins")
 def test_plugin():
-    assert plugin_loaded("datavic_admin")
+    assert plugin_loaded("datastore_refresh")

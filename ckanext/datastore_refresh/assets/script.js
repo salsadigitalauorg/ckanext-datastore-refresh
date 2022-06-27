@@ -1,4 +1,4 @@
-ckan.module("datavic_admin-module", function ($, _) {
+ckan.module("datastore_refresh-module", function ($, _) {
   "use strict";
   return {
     options: {
