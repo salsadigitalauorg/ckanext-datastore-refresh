@@ -35,6 +35,8 @@ class DatastoreRefreshPlugin(plugins.SingletonPlugin):
             'refresh_dataset_datastore_delete': actions.refresh_dataset_datastore_delete,
             'refresh_dataset_datastore_by_frequency': actions.refresh_dataset_datastore_by_frequency,
             'refresh_datastore_dataset_update': actions.refresh_datastore_dataset_update,
+            'refresh_dataset_datastore_edit_frequency': actions.refresh_dataset_datastore_edit_frequency,
+            'refresh_dataset_datastore_show': actions.refresh_dataset_datastore_show
         }
 
     # IAuthFunctions
@@ -44,7 +46,10 @@ class DatastoreRefreshPlugin(plugins.SingletonPlugin):
             'refresh_dataset_datastore_list': auth.refresh_dataset_datastore_list,
             'refresh_dataset_datastore_by_frequency': auth.refresh_dataset_datastore_by_frequency,
             'refresh_dataset_datastore_delete': auth.refresh_dataset_datastore_delete,
-            'refresh_datastore_dataset_update': auth.refresh_datastore_dataset_update
+            'refresh_datastore_dataset_update': auth.refresh_datastore_dataset_update,
+            'refresh_dataset_datastore_edit_frequency': auth.refresh_dataset_datastore_edit_frequency,
+            'refresh_dataset_datastore_show': auth.refresh_dataset_datastore_show
+
         }
 
     # IConfigurer

@@ -86,9 +86,40 @@ class DatastoreRefreshConfigView(MethodView):
         return h.redirect_to('datastore_config.datastore_refresh_config')
 
 
+class DatastoreRefreshConfigViewEdit(MethodView):
+    def _get_context(self):
+        return {
+            'model': model,
+            'session': model.Session,
+            'user': toolkit.g.user,
+            'auth_user_obj': toolkit.g.userobj
+        }
+
+    def post(self, id):
+        context = self._get_context()
+        extra_vars = {'id': id}
+        params = helpers.clean_params(toolkit.request.form)
+        params.update({'id': extra_vars.get('id')})
+        get_action('refresh_dataset_datastore_edit_frequency')(context, params)
+        return h.redirect_to('datastore_config.datastore_refresh_config')
+
+    def get(self, id):
+        context = self._get_context()
+        extra_vars = {'id': id}
+        data_dict = get_action('refresh_dataset_datastore_show')(context, extra_vars)
+        dataset = get_action("package_show")(context, {"id": data_dict["dataset_id"]})
+
+        extra_vars.update({"name": dataset["name"]})
+        return render('admin/edit_datastore_refresh_frequency.html', extra_vars=extra_vars)
+
+
+
+
 def register_plugin_rules(blueprint):
     blueprint.add_url_rule('/ckan-admin/datastore-refresh-config',
                            view_func=DatastoreRefreshConfigView.as_view(str('datastore_refresh_config')))
+    blueprint.add_url_rule('/ckan-admin/datastore-refresh-config/edit/<id>',
+                           view_func=DatastoreRefreshConfigViewEdit.as_view(str('datastore_refresh_config_edit')))
 
 
 register_plugin_rules(datastore_config)
