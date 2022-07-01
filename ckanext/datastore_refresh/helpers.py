@@ -24,7 +24,7 @@ def clean_params(params):
 
 
 def get_datastore_refresh_configs():
-    return toolkit.get_action("refresh_dataset_datastore_list")({}, {})
+    return toolkit.get_action("datastore_refresh_dataset_refresh_list")({}, {})
 
 
 def get_datasore_refresh_config_option(frequency):
@@ -88,7 +88,7 @@ def purge_section_cache(context, resource_dict, dataset_dict):
             "ckanext.datastore_refresh.cache_ban_url"
         )
         if cache_ban_url:
-            rdd = toolkit.get_action("refresh_datastore_dataset_update")(
+            rdd = toolkit.get_action("datastore_refresh_dataset_refresh_update")(
                 context, {"package_id": dataset_dict.get("id")}
             )
             if rdd:

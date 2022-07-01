@@ -42,7 +42,7 @@ class TestRefreshDatasetDatastore:
         freezer.move_to(moment)
 
         helpers.call_action(
-            "refresh_datastore_dataset_update",
+            "datastore_refresh_dataset_refresh_update",
             context={"auth_user_obj": sysadmin},
             package_id=obj.dataset_id,
         )

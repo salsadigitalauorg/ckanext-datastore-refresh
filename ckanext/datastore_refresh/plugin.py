@@ -31,23 +31,11 @@ class DatastoreRefreshPlugin(plugins.SingletonPlugin):
 
     # IActions
     def get_actions(self):
-        return {
-            "refresh_datastore_dataset_create": action.refresh_datastore_dataset_create,
-            "refresh_dataset_datastore_list": action.refresh_dataset_datastore_list,
-            "refresh_dataset_datastore_delete": action.refresh_dataset_datastore_delete,
-            "refresh_dataset_datastore_by_frequency": action.refresh_dataset_datastore_by_frequency,
-            "refresh_datastore_dataset_update": action.refresh_datastore_dataset_update,
-        }
+        return action.get_actions()
 
     # IAuthFunctions
     def get_auth_functions(self):
-        return {
-            "refresh_datastore_dataset_create": auth.refresh_datastore_dataset_create,
-            "refresh_dataset_datastore_list": auth.refresh_dataset_datastore_list,
-            "refresh_dataset_datastore_by_frequency": auth.refresh_dataset_datastore_by_frequency,
-            "refresh_dataset_datastore_delete": auth.refresh_dataset_datastore_delete,
-            "refresh_datastore_dataset_update": auth.refresh_datastore_dataset_update,
-        }
+        return auth.get_auth_functions()
 
     # IConfigurer
     def update_config(self, config_):

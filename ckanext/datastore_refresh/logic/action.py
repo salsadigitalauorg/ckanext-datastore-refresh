@@ -12,6 +12,9 @@ from ckanext.datastore_refresh.helpers import (
     get_frequency_options,
 )
 from ckanext.datastore_refresh.model import DatasetRefresh as rdd
+from ckanext.toolbelt.decorators import Collector
+
+action, get_actions = Collector("datastore_refresh").split()
 
 log = logging.getLogger(__name__)
 ValidationError = toolkit.ValidationError
@@ -27,9 +30,9 @@ def validate_frequency_options(value, list_of_values):
     return value
 
 
-def refresh_datastore_dataset_create(context, data_dict):
-    """
-    Create a new refresh_dataset_datastore
+@action
+def dataset_refresh_create(context, data_dict):
+    """Create a new dataset refresh schedule.
 
     :param package_id: id of the dataset
     :type package_id: string
@@ -51,7 +54,7 @@ def refresh_datastore_dataset_create(context, data_dict):
     if not data_dict.get("package_id"):
         raise ValidationError(toolkit._("No dataset_id provided"))
 
-    logic.check_access("refresh_datastore_dataset_create", context, data_dict)
+    logic.check_access("datastore_refresh_dataset_refresh_create", context, data_dict)
 
     session = context["session"]
     user = context["auth_user_obj"]
@@ -81,10 +84,9 @@ def refresh_datastore_dataset_create(context, data_dict):
     return table_dictize(rdd_obj, context)
 
 
-def refresh_datastore_dataset_update(context, data_dict):
-    """
-    Update a refresh_dataset_datastore configuration
-    :package
+@action
+def dataset_refresh_update(context, data_dict):
+    """Update a dataset refresh schedule.
 
     :param package_id: id of the dataset
     :type package_id: string
@@ -95,7 +97,7 @@ def refresh_datastore_dataset_update(context, data_dict):
     if not data_dict.get("package_id"):
         raise ValidationError(toolkit._("No dataset_id provided"))
 
-    logic.check_access("refresh_datastore_dataset_update", context)
+    logic.check_access("datastore_refresh_dataset_refresh_update", context)
 
     rdd_obj = rdd.get_by_package_id(data_dict["package_id"])
     if not rdd_obj:
@@ -117,14 +119,14 @@ def refresh_datastore_dataset_update(context, data_dict):
     return table_dictize(rdd_obj, context)
 
 
+@action
 @toolkit.side_effect_free
-def refresh_dataset_datastore_list(context, data_dict=None):
-    """
-    List all refresh_dataset_datastores
+def dataset_refresh_list(context, data_dict=None):
+    """List all dataset refresh schedules.
 
     :returns: a list of all refresh_dataset_datastores
     """
-    logic.check_access("refresh_dataset_datastore_list", context)
+    logic.check_access("datastore_refresh_dataset_refresh_list", context)
     results = list()
     try:
         results = rdd.get_all()
@@ -141,9 +143,9 @@ def refresh_dataset_datastore_list(context, data_dict=None):
     return res_dict
 
 
-def refresh_dataset_datastore_by_frequency(context, data_dict):
-    """
-    List all refresh_dataset_datastores by frequency
+@action
+def dataset_refresh_list_by_frequency(context, data_dict):
+    """List all dataset refresh schedules by frequency.
 
     :param frequency: frequency of the refresh
     :type frequency: string
@@ -157,7 +159,7 @@ def refresh_dataset_datastore_by_frequency(context, data_dict):
     valid_options = get_frequency_options()
     validate_frequency_options(data_dict.get("frequency"), valid_options)
 
-    toolkit.check_access("refresh_dataset_datastore_by_frequency", context)
+    toolkit.check_access("datastore_refresh_dataset_refresh_list_by_frequency", context)
 
     log.info(
         toolkit._("Refresh_dataset_datastore by frequency: {0}").format(
@@ -178,9 +180,9 @@ def refresh_dataset_datastore_by_frequency(context, data_dict):
     return data_dict
 
 
-def refresh_dataset_datastore_delete(context, data_dict):
-    """
-    Delete a refresh_dataset_datastore
+@action
+def dataset_refresh_delete(context, data_dict):
+    """Delete a dataset refresh schedule.
 
     :param id: id of the refresh_dataset_datastore
     :type id: string
@@ -188,7 +190,7 @@ def refresh_dataset_datastore_delete(context, data_dict):
     :returns: the deleted refresh_dataset_datastore
 
     """
-    toolkit.check_access("refresh_dataset_datastore_delete", context)
+    toolkit.check_access("datastore_refresh_dataset_refresh_delete", context)
 
     rdd_id = data_dict["id"]
     log.info(

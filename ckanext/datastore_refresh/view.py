@@ -65,7 +65,7 @@ class DatastoreRefreshConfigView(MethodView):
         context = self._get_context()
         params = helpers.clean_params(toolkit.request.form)
         if params.get("delete_config"):
-            get_action("refresh_dataset_datastore_delete")(
+            get_action("datastore_refresh_dataset_refresh_delete")(
                 context, {"id": params.get("delete_config")}
             )
             h.flash_success(toolkit._("Succesfully deleted configuration"))
@@ -94,7 +94,7 @@ class DatastoreRefreshConfigView(MethodView):
             "package_id": dataset.get("id"),
             "frequency": params.get("frequency"),
         }
-        results = get_action("refresh_datastore_dataset_create")(
+        results = get_action("datastore_refresh_dataset_refresh_create")(
             context, config_dict
         )
         extra_vars = self._setup_extra_template_variables()
