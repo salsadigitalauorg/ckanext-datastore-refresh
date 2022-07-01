@@ -56,7 +56,8 @@ def refresh_datastore_dataset_create(context, data_dict):
     rdd_obj.created_user_id = user.id
 
     try:
-        rdd_obj.save()
+        session.add(rdd_obj)
+        session.commit()
     except Exception as e:
         session.rollback()
         log.error(
@@ -67,9 +68,6 @@ def refresh_datastore_dataset_create(context, data_dict):
         raise ValidationError(
             toolkit._("Error while creating refresh_dataset_datastore")
         )
-
-    session.add(rdd_obj)
-    session.commit()
 
     return table_dictize(rdd_obj, context)
 
@@ -84,6 +82,7 @@ def refresh_datastore_dataset_update(context, data_dict):
 
     :returns: none
     """
+    session = context["session"]
     if not data_dict.get("package_id"):
         raise ValidationError(toolkit._("No dataset_id provided"))
 
@@ -102,7 +101,10 @@ def refresh_datastore_dataset_update(context, data_dict):
         toolkit._("Updating refresh_dataset_datastore: {0}").format(rdd_obj)
     )
     rdd_obj.datastore_last_refreshed = datetime.datetime.utcnow()
-    rdd_obj.save()
+
+    session.add(rdd_obj)
+    session.commit()
+
     return table_dictize(rdd_obj, context)
 
 

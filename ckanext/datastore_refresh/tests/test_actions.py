@@ -5,23 +5,16 @@ import ckan.model as model
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 import pytest
-import sqlalchemy
 from ckan.lib.helpers import url_for
 from ckan.plugins.toolkit import Invalid
 
 from ckanext.datastore_refresh.actions import ValidationError
 from ckanext.datastore_refresh.model import RefreshDatasetDatastore as rdd
-from ckanext.datastore_refresh.model import setup
 
 
-@pytest.fixture
-def init_db():
-    setup()
-
-
-@pytest.mark.usefixtures("clean_db", "init_db")
+@pytest.mark.usefixtures("with_plugins", "clean_db")
 class TestRefreshDatastoreDatasetCreate(object):
-    frequency = "5"
+    frequency = "10"
 
     def create_test_data(self):
         dataset = factories.Dataset()
@@ -89,7 +82,7 @@ class TestRefreshDatastoreDatasetCreate(object):
 
     def test_refresh_datastore_dataset_create_wrong_frequency(self):
         dataset, sysadmin_obj = self.create_test_data()
-        data_dict = {"package_id": dataset["id"], "frequency": "5m"}
+        data_dict = {"package_id": dataset["id"], "frequency": "10m"}
 
         with pytest.raises(Invalid):
             helpers.call_action(
@@ -100,7 +93,7 @@ class TestRefreshDatastoreDatasetCreate(object):
 
     def test_refresh_datastore_dataset_create_anonymous(self):
         dataset, _ = self.create_test_data()
-        data_dict = {"package_id": dataset["id"], "frequency": "5"}
+        data_dict = {"package_id": dataset["id"], "frequency": "10"}
 
         with pytest.raises(logic.NotAuthorized):
             helpers.call_action(
@@ -111,7 +104,7 @@ class TestRefreshDatastoreDatasetCreate(object):
 
     def test_refresh_datastore_dataset_create_normal_user(self):
         dataset, _ = self.create_test_data()
-        data_dict = {"package_id": dataset["id"], "frequency": "5"}
+        data_dict = {"package_id": dataset["id"], "frequency": "10"}
         normal_user = factories.User()
         normal_user_obj = model.User.by_name(normal_user["name"])
 
@@ -126,9 +119,9 @@ class TestRefreshDatastoreDatasetCreate(object):
             )
 
 
-@pytest.mark.usefixtures("clean_db", "init_db")
+@pytest.mark.usefixtures("with_plugins", "clean_db")
 class TestRefreshDatastoreDatasetUpdate(object):
-    frequency = "5"
+    frequency = "10"
 
     def create_test_data(self):
         dataset = factories.Dataset()
@@ -175,12 +168,12 @@ class TestRefreshDatastoreDatasetUpdate(object):
         _, sysadmin_obj = self.create_test_data()
         data_dict = {"package_id": "worngid", "frequency": self.frequency}
 
-        with pytest.raises(sqlalchemy.orm.exc.NoResultFound):
-            helpers.call_action(
-                "refresh_datastore_dataset_update",
-                context={"auth_user_obj": sysadmin_obj},
-                **data_dict,
-            )
+        result = helpers.call_action(
+            "refresh_datastore_dataset_update",
+            context={"auth_user_obj": sysadmin_obj},
+            **data_dict,
+        )
+        assert result is None
 
     def test_refresh_datastore_dataset_update_annonymous(self):
         dataset, sysadmin_obj = self.create_test_data()
@@ -218,9 +211,9 @@ class TestRefreshDatastoreDatasetUpdate(object):
             )
 
 
-@pytest.mark.usefixtures("clean_db", "init_db")
+@pytest.mark.usefixtures("with_plugins", "clean_db")
 class TestRefreshDatastoreDatasetList(object):
-    frequency = "5"
+    frequency = "10"
 
     def create_test_data(self):
         dataset = factories.Dataset()
@@ -295,9 +288,9 @@ class TestRefreshDatastoreDatasetList(object):
             )
 
 
-@pytest.mark.usefixtures("clean_db", "init_db")
+@pytest.mark.usefixtures("with_plugins", "clean_db")
 class TestRefreshDatastoreDatasetByFrequency(object):
-    frequency = "5"
+    frequency = "10"
 
     def create_test_data(self):
         dataset = factories.Dataset()
@@ -398,9 +391,9 @@ class TestRefreshDatastoreDatasetByFrequency(object):
             )
 
 
-@pytest.mark.usefixtures("clean_db", "init_db")
+@pytest.mark.usefixtures("with_plugins", "clean_db")
 class TestRefreshDatastoreDatasetDelete(object):
-    frequency = "5"
+    frequency = "10"
 
     def create_test_data(self):
         dataset = factories.Dataset()

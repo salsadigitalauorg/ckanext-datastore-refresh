@@ -19,19 +19,6 @@ def datastore_config():
     pass
 
 
-@datastore_config.command("init_db")
-def init_db():
-    """Initialise the database tables required for datastore refresh config"""
-    click.secho("Initializing Datastore Refresh Config tables", fg="green")
-
-    try:
-        model.setup()
-    except Exception as e:
-        tk.error_shout(str(e))
-
-    click.secho("Datastore Refresh Config DB tables are setup", fg="green")
-
-
 @datastore_config.command("refresh_dataset_datastore")
 @click.argument("frequency")
 def refresh_dataset_datastore(frequency):

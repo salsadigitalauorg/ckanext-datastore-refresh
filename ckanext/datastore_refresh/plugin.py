@@ -2,7 +2,6 @@ import logging
 
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
-
 import ckanext.xloader.interfaces as xloader_interfaces
 from ckanext.datastore_refresh import actions, auth, cli, helpers, view
 
@@ -16,7 +15,7 @@ class DatastoreRefreshPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.IClick)
     plugins.implements(plugins.IBlueprint)
-    plugins.implements(xloader_interfaces.IXloader)
+    plugins.implements(xloader_interfaces.IXloader, inherit=True)
 
     # ITemplateHelpers
     def get_helpers(self):
@@ -69,8 +68,5 @@ class DatastoreRefreshPlugin(plugins.SingletonPlugin):
         return view.datastore_config
 
     # IXLoader
-    def can_upload(self, resource_id):
-        return True
-
     def after_upload(self, context, resource_dict, dataset_dict):
         helpers.purge_section_cache(context, resource_dict, dataset_dict)

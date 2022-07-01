@@ -5,8 +5,6 @@ Revises: 58c0a90936d6
 Create Date: 2021-09-08 16:26:58.692504
 
 """
-import datetime
-
 import sqlalchemy as sa
 from alembic import op
 
@@ -26,7 +24,6 @@ def upgrade():
             sa.UnicodeText,
             sa.ForeignKey("package.id"),
             nullable=False,
-            index=True,
         ),
         sa.Column("frequency", sa.UnicodeText, nullable=False),
         sa.Column(
@@ -39,7 +36,7 @@ def upgrade():
             "created_at",
             sa.DateTime,
             nullable=False,
-            default=datetime.datetime.utcnow,
+            server_default=sa.func.current_timestamp(),
         ),
         sa.Column("datastore_last_refreshed", sa.DateTime, nullable=True),
     )
