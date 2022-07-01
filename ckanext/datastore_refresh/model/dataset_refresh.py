@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import datetime
+from typing import Optional
+
+from typing_extensions import Self
 
 import ckan.model as model
 from ckan.model.types import make_uuid
@@ -11,8 +14,8 @@ from .base import Base
 refresh_dataset_datastore_table = None
 
 
-class RefreshDatasetDatastore(Base):
-    __tablename__ = "refresh_dataset_datastore"
+class DatasetRefresh(Base):
+    __tablename__ = "datastore_refresh_dataset_refresh"
     id = Column(UnicodeText, primary_key=True, default=make_uuid)
     dataset_id = Column(
         UnicodeText,
@@ -44,7 +47,7 @@ class RefreshDatasetDatastore(Base):
         model.Session.commit()
 
     @classmethod
-    def get(cls, id):
+    def get(cls, id: str) -> Optional[Self]:
         return model.Session.query(cls).get(id)
 
     @classmethod
@@ -55,7 +58,7 @@ class RefreshDatasetDatastore(Base):
             model.Session.commit()
 
     @classmethod
-    def get_all(cls):
+    def get_all(cls) -> list[tuple[Self, model.Package]]:
         query = (
             model.Session.query(cls, model.Package)
             .join(model.Package)
@@ -63,16 +66,18 @@ class RefreshDatasetDatastore(Base):
         )
         return query.all()
 
-    def get_by_frequency(frequency):
+    @classmethod
+    def get_by_frequency(cls, frequency: str) -> list[tuple[Self, model.Package]]:
         query = (
-            model.Session.query(RefreshDatasetDatastore, model.Package)
+            model.Session.query(cls, model.Package)
             .join(model.Package)
-            .filter(RefreshDatasetDatastore.frequency == frequency)
+            .filter(cls.frequency == frequency)
         )
         return query.all()
 
-    def get_by_package_id(package_id):
-        query = model.Session.query(RefreshDatasetDatastore).filter(
-            RefreshDatasetDatastore.dataset_id == package_id
+    @classmethod
+    def get_by_package_id(cls, package_id: str) -> Optional[Self]:
+        query = model.Session.query(cls).filter(
+            cls.dataset_id == package_id
         )
         return query.first()

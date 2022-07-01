@@ -1,5 +1,5 @@
-from .refresh_dataset_datastore import RefreshDatasetDatastore
+from .dataset_refresh import DatasetRefresh
 
 __all__ = [
-    "RefreshDatasetDatastore",
+    "DatasetRefresh",
 ]

@@ -1,8 +1,9 @@
-
-import ckan.tests.helpers as helpers
 import pytest
 
-from ckanext.datastore_refresh.model import RefreshDatasetDatastore as rdd
+import ckan.model as model
+import ckan.tests.helpers as helpers
+
+from ckanext.datastore_refresh.model import DatasetRefresh as rdd
 
 
 @pytest.mark.usefixtures("with_plugins", "clean_db")
@@ -47,8 +48,6 @@ class TestRefreshDatasetDatastore:
         )
         assert obj.datastore_last_refreshed == moment
 
-
-
     def test_delete(self, package, sysadmin):
         results = rdd(
             dataset_id=package["id"],
@@ -61,3 +60,16 @@ class TestRefreshDatasetDatastore:
         assert obj
         rdd.delete(obj.id)
         assert rdd.get(obj.id) is None
+
+    def test_cascade(self, package, sysadmin):
+        results = rdd(
+            dataset_id=package["id"],
+            frequency="10",
+            created_user_id=sysadmin["id"],
+        )
+        results.save()
+
+        model.Session.delete(model.Package.get(package["id"]))
+        model.Session.commit()
+
+        assert rdd.get(results.id) is None

@@ -10,7 +10,7 @@ from ckan.logic import clean_dict, parse_params, tuplize_dict
 from ckan.views.api import API_DEFAULT_VERSION
 
 import ckanext.datastore_refresh.choices as choices
-from ckanext.datastore_refresh.model import RefreshDatasetDatastore as rdd
+from ckanext.datastore_refresh.model import DatasetRefresh as rdd
 
 log = logging.getLogger(__name__)
 

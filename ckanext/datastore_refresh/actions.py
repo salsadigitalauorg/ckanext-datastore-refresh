@@ -11,7 +11,7 @@ from ckanext.datastore_refresh.helpers import (
     dictize_two_objects,
     get_frequency_options,
 )
-from ckanext.datastore_refresh.model import RefreshDatasetDatastore as rdd
+from ckanext.datastore_refresh.model import DatasetRefresh as rdd
 from ckanext.datastore_refresh.validation import validate_frequency_options
 
 log = logging.getLogger(__name__)

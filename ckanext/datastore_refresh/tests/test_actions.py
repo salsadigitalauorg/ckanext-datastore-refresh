@@ -9,7 +9,7 @@ from ckan.lib.helpers import url_for
 from ckan.plugins.toolkit import Invalid
 
 from ckanext.datastore_refresh.actions import ValidationError
-from ckanext.datastore_refresh.model import RefreshDatasetDatastore as rdd
+from ckanext.datastore_refresh.model import DatasetRefresh as rdd
 
 
 @pytest.mark.usefixtures("with_plugins", "clean_db")
