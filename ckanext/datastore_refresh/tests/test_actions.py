@@ -5,10 +5,8 @@ import ckan.model as model
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 import pytest
-from ckan.lib.helpers import url_for
-from ckan.plugins.toolkit import Invalid
+from ckan.plugins.toolkit import Invalid, ValidationError, url_for
 
-from ckanext.datastore_refresh.actions import ValidationError
 from ckanext.datastore_refresh.model import DatasetRefresh as rdd
 
 

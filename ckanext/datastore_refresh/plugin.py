@@ -3,7 +3,10 @@ import logging
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 import ckanext.xloader.interfaces as xloader_interfaces
-from ckanext.datastore_refresh import actions, auth, cli, helpers, view
+
+from . import cli, helpers, view
+from .logic import auth, action
+
 
 log = logging.getLogger(__name__)
 
@@ -29,11 +32,11 @@ class DatastoreRefreshPlugin(plugins.SingletonPlugin):
     # IActions
     def get_actions(self):
         return {
-            "refresh_datastore_dataset_create": actions.refresh_datastore_dataset_create,
-            "refresh_dataset_datastore_list": actions.refresh_dataset_datastore_list,
-            "refresh_dataset_datastore_delete": actions.refresh_dataset_datastore_delete,
-            "refresh_dataset_datastore_by_frequency": actions.refresh_dataset_datastore_by_frequency,
-            "refresh_datastore_dataset_update": actions.refresh_datastore_dataset_update,
+            "refresh_datastore_dataset_create": action.refresh_datastore_dataset_create,
+            "refresh_dataset_datastore_list": action.refresh_dataset_datastore_list,
+            "refresh_dataset_datastore_delete": action.refresh_dataset_datastore_delete,
+            "refresh_dataset_datastore_by_frequency": action.refresh_dataset_datastore_by_frequency,
+            "refresh_datastore_dataset_update": action.refresh_datastore_dataset_update,
         }
 
     # IAuthFunctions
