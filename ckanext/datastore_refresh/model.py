@@ -1,11 +1,11 @@
-from ckan.model.meta import metadata, mapper, Session
-from ckan.model.domain_object import DomainObject
-from ckan.model.types import make_uuid
-from ckan.model.package import Package
-from sqlalchemy import types, Column, Table, ForeignKey, orm
-
 import datetime
 import logging
+
+from ckan.model.domain_object import DomainObject
+from ckan.model.meta import Session, mapper, metadata
+from ckan.model.package import Package
+from ckan.model.types import make_uuid
+from sqlalchemy import Column, ForeignKey, Table, orm, types
 
 log = logging.getLogger(__name__)
 

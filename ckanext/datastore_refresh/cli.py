@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 
-import click
 import logging
+
 import ckan.plugins.toolkit as tk
+import click
 
-
-import ckanext.datastore_refresh.model as model
 import ckanext.datastore_refresh.helpers as helpers
-
+import ckanext.datastore_refresh.model as model
 
 log = logging.getLogger(__name__)
 

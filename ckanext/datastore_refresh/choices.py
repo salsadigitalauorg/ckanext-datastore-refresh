@@ -6,7 +6,6 @@ from ckan.common import config
 
 from ckanext.datastore_refresh.schema import default_frequency_options_schema
 
-
 log = logging.getLogger(__name__)
 
 DEFAULT_VALUES = [

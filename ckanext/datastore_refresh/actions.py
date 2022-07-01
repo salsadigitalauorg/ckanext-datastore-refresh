@@ -1,17 +1,17 @@
-import ckan.plugins.toolkit as toolkit
-import ckan.model as model
-import ckan.logic as logic
-import logging
-import sqlalchemy
 import datetime
+import logging
 
+import ckan.logic as logic
+import ckan.model as model
+import ckan.plugins.toolkit as toolkit
+import sqlalchemy
 from ckan.lib.dictization import table_dictize
 
-from ckanext.datastore_refresh.model import RefreshDatasetDatastore as rdd
 from ckanext.datastore_refresh.helpers import (
     dictize_two_objects,
     get_frequency_options,
 )
+from ckanext.datastore_refresh.model import RefreshDatasetDatastore as rdd
 from ckanext.datastore_refresh.validation import validate_frequency_options
 
 log = logging.getLogger(__name__)

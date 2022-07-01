@@ -2,8 +2,8 @@ import logging
 
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
-import ckanext.xloader.interfaces as xloader_interfaces
 
+import ckanext.xloader.interfaces as xloader_interfaces
 from ckanext.datastore_refresh import actions, auth, cli, helpers, view
 
 log = logging.getLogger(__name__)

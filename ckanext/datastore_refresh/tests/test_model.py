@@ -1,12 +1,11 @@
-import pytest
 import datetime
-import ckan.tests.helpers as helpers
-import ckan.tests.factories as factories
 
-from ckanext.datastore_refresh.model import (
-    RefreshDatasetDatastore as rdd,
-    setup,
-)
+import ckan.tests.factories as factories
+import ckan.tests.helpers as helpers
+import pytest
+
+from ckanext.datastore_refresh.model import RefreshDatasetDatastore as rdd
+from ckanext.datastore_refresh.model import setup
 
 
 @pytest.fixture

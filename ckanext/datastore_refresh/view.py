@@ -1,8 +1,8 @@
 import logging
-import ckan.model as model
-import ckan.logic as logic
-import ckan.plugins.toolkit as toolkit
 
+import ckan.logic as logic
+import ckan.model as model
+import ckan.plugins.toolkit as toolkit
 from flask import Blueprint
 from flask.views import MethodView
 

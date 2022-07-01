@@ -1,20 +1,17 @@
-import pytest
 import datetime
-import sqlalchemy
 
-import ckan.tests.factories as factories
-import ckan.tests.helpers as helpers
 import ckan.logic as logic
 import ckan.model as model
-
-from ckan.plugins.toolkit import Invalid
+import ckan.tests.factories as factories
+import ckan.tests.helpers as helpers
+import pytest
+import sqlalchemy
 from ckan.lib.helpers import url_for
+from ckan.plugins.toolkit import Invalid
 
-from ckanext.datastore_refresh.model import (
-    RefreshDatasetDatastore as rdd,
-    setup,
-)
 from ckanext.datastore_refresh.actions import ValidationError
+from ckanext.datastore_refresh.model import RefreshDatasetDatastore as rdd
+from ckanext.datastore_refresh.model import setup
 
 
 @pytest.fixture

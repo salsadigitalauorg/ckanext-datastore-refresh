@@ -1,18 +1,16 @@
 import logging
-import requests
-import ckan.plugins.toolkit as toolkit
-import ckan.lib.formatters as formatters
+
 import ckan.lib.dictization as d
+import ckan.lib.formatters as formatters
 import ckan.lib.helpers as h
-
-import ckanext.datastore_refresh.choices as choices
-
+import ckan.plugins.toolkit as toolkit
+import requests
 from ckan.lib.navl.dictization_functions import unflatten
-from ckan.logic import clean_dict, tuplize_dict, parse_params
+from ckan.logic import clean_dict, parse_params, tuplize_dict
 from ckan.views.api import API_DEFAULT_VERSION
 
+import ckanext.datastore_refresh.choices as choices
 from ckanext.datastore_refresh.model import RefreshDatasetDatastore as rdd
-
 
 log = logging.getLogger(__name__)
 
