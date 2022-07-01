@@ -1,15 +1,11 @@
 # -*- coding: utf-8 -*-
 
-import json
-from logging import getLogger
 import click
 import logging
 import ckan.plugins.toolkit as tk
-import ckan.model as model
 
-from ckan.common import config
 
-import ckanext.datastore_refresh.model as datavic_model
+import ckanext.datastore_refresh.model as model
 import ckanext.datastore_refresh.helpers as helpers
 
 
@@ -30,7 +26,7 @@ def init_db():
     click.secho(u"Initializing Datastore Refresh Config tables", fg=u"green")
 
     try:
-        datavic_model.setup()
+        model.setup()
     except Exception as e:
         tk.error_shout(str(e))
 

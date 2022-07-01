@@ -12,7 +12,7 @@ import datetime
 
 # revision identifiers, used by Alembic.
 revision = '2cda5f1bc8d4'
-down_revision = 'ccd38ad5fced'
+down_revision = None
 branch_labels = None
 depends_on = None
 
@@ -21,7 +21,7 @@ def upgrade():
      op.create_table(
         'refresh_dataset_datastore',
         sa.Column('id',
-            sa.UnicodeText, 
+            sa.UnicodeText,
             primary_key=True),
         sa.Column('dataset_id',
             sa.UnicodeText, sa.ForeignKey('package.id'),
@@ -40,7 +40,7 @@ def upgrade():
         sa.Column('datastore_last_refreshed',
             sa.DateTime,
             nullable=True)
-    )       
+    )
 
 
 def downgrade():
