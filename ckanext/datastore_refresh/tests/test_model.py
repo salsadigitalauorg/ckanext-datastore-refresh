@@ -3,7 +3,10 @@ import datetime
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 
-from ckanext.datastore_refresh.model import RefreshDatasetDatastore as rdd, setup
+from ckanext.datastore_refresh.model import (
+    RefreshDatasetDatastore as rdd,
+    setup,
+)
 
 
 @pytest.fixture
@@ -15,7 +18,9 @@ def init_db():
 def test_create():
     dataset = factories.Dataset()
     user = factories.Sysadmin()
-    results = rdd(dataset_id=dataset["id"], frequency="5", created_user_id=user["id"])
+    results = rdd(
+        dataset_id=dataset["id"], frequency="5", created_user_id=user["id"]
+    )
     results.save()
     obj = rdd.get(results.id)
 
@@ -31,7 +36,9 @@ def test_create():
 def test_update(freezer):
     dataset = factories.Dataset()
     user = factories.Sysadmin()
-    results = rdd(dataset_id=dataset["id"], frequency="5", created_user_id=user["id"])
+    results = rdd(
+        dataset_id=dataset["id"], frequency="5", created_user_id=user["id"]
+    )
     results.save()
     obj = rdd.get(results.id)
 
@@ -50,7 +57,9 @@ def test_update(freezer):
 def test_delete():
     dataset = factories.Dataset()
     user = factories.Sysadmin()
-    results = rdd(dataset_id=dataset["id"], frequency="5", created_user_id=user["id"])
+    results = rdd(
+        dataset_id=dataset["id"], frequency="5", created_user_id=user["id"]
+    )
     results.save()
     obj = rdd.get(results.id)
 

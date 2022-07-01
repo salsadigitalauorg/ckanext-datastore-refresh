@@ -17,7 +17,9 @@ DEFAULT_VALUES = [
 
 
 def load_options():
-    frequency_options_path = config.get("ckanext.datastore_refresh.frequency_options")
+    frequency_options_path = config.get(
+        "ckanext.datastore_refresh.frequency_options"
+    )
     if frequency_options_path:
         with open(frequency_options_path) as f:
             content = f.read()

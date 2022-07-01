@@ -10,7 +10,10 @@ import ckan.model as model
 from ckan.plugins.toolkit import Invalid
 from ckan.lib.helpers import url_for
 
-from ckanext.datastore_refresh.model import RefreshDatasetDatastore as rdd, setup
+from ckanext.datastore_refresh.model import (
+    RefreshDatasetDatastore as rdd,
+    setup,
+)
 from ckanext.datastore_refresh.actions import ValidationError
 
 
@@ -118,7 +121,10 @@ class TestRefreshDatastoreDatasetCreate(object):
         with pytest.raises(logic.NotAuthorized):
             helpers.call_action(
                 "refresh_datastore_dataset_create",
-                context={"auth_user_obj": normal_user_obj, "ignore_auth": False},
+                context={
+                    "auth_user_obj": normal_user_obj,
+                    "ignore_auth": False,
+                },
                 **data_dict,
             )
 
@@ -285,7 +291,10 @@ class TestRefreshDatastoreDatasetList(object):
         with pytest.raises(logic.NotAuthorized):
             helpers.call_action(
                 "refresh_dataset_datastore_list",
-                context={"auth_user_obj": normal_user["name"], "ignore_auth": False},
+                context={
+                    "auth_user_obj": normal_user["name"],
+                    "ignore_auth": False,
+                },
             )
 
 
@@ -384,7 +393,10 @@ class TestRefreshDatastoreDatasetByFrequency(object):
         with pytest.raises(logic.NotAuthorized):
             helpers.call_action(
                 "refresh_dataset_datastore_by_frequency",
-                context={"auth_user_obj": normal_user["name"], "ignore_auth": False},
+                context={
+                    "auth_user_obj": normal_user["name"],
+                    "ignore_auth": False,
+                },
                 frequency=data_dict["frequency"],
             )
 

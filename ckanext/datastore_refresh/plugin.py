@@ -21,30 +21,30 @@ class DatastoreRefreshPlugin(plugins.SingletonPlugin):
     # ITemplateHelpers
     def get_helpers(self):
         return {
-            'get_frequency_options': helpers.get_frequency_options,
-            'get_datastore_refresh_configs': helpers.get_datastore_refresh_configs,
-            'get_datasore_refresh_config_option': helpers.get_datasore_refresh_config_option,
-            'time_ago_from_datetime': helpers.time_ago_from_datetime,
+            "get_frequency_options": helpers.get_frequency_options,
+            "get_datastore_refresh_configs": helpers.get_datastore_refresh_configs,
+            "get_datasore_refresh_config_option": helpers.get_datasore_refresh_config_option,
+            "time_ago_from_datetime": helpers.time_ago_from_datetime,
         }
 
     # IActions
     def get_actions(self):
         return {
-            'refresh_datastore_dataset_create': actions.refresh_datastore_dataset_create,
-            'refresh_dataset_datastore_list': actions.refresh_dataset_datastore_list,
-            'refresh_dataset_datastore_delete': actions.refresh_dataset_datastore_delete,
-            'refresh_dataset_datastore_by_frequency': actions.refresh_dataset_datastore_by_frequency,
-            'refresh_datastore_dataset_update': actions.refresh_datastore_dataset_update,
+            "refresh_datastore_dataset_create": actions.refresh_datastore_dataset_create,
+            "refresh_dataset_datastore_list": actions.refresh_dataset_datastore_list,
+            "refresh_dataset_datastore_delete": actions.refresh_dataset_datastore_delete,
+            "refresh_dataset_datastore_by_frequency": actions.refresh_dataset_datastore_by_frequency,
+            "refresh_datastore_dataset_update": actions.refresh_datastore_dataset_update,
         }
 
     # IAuthFunctions
     def get_auth_functions(self):
         return {
-            'refresh_datastore_dataset_create': auth.refresh_datastore_dataset_create,
-            'refresh_dataset_datastore_list': auth.refresh_dataset_datastore_list,
-            'refresh_dataset_datastore_by_frequency': auth.refresh_dataset_datastore_by_frequency,
-            'refresh_dataset_datastore_delete': auth.refresh_dataset_datastore_delete,
-            'refresh_datastore_dataset_update': auth.refresh_datastore_dataset_update
+            "refresh_datastore_dataset_create": auth.refresh_datastore_dataset_create,
+            "refresh_dataset_datastore_list": auth.refresh_dataset_datastore_list,
+            "refresh_dataset_datastore_by_frequency": auth.refresh_dataset_datastore_by_frequency,
+            "refresh_dataset_datastore_delete": auth.refresh_dataset_datastore_delete,
+            "refresh_datastore_dataset_update": auth.refresh_datastore_dataset_update,
         }
 
     # IConfigurer
@@ -55,9 +55,9 @@ class DatastoreRefreshPlugin(plugins.SingletonPlugin):
         # Add a new ckan-admin tabs for our extension
         toolkit.add_ckan_admin_tab(
             toolkit.config,
-            'datastore_config.datastore_refresh_config',
-            'Datastore refresh',
-            config_var='ckan.admin_tabs'
+            "datastore_config.datastore_refresh_config",
+            "Datastore refresh",
+            config_var="ckan.admin_tabs",
         )
 
     # IClick

@@ -8,7 +8,10 @@ import datetime
 from ckan.lib.dictization import table_dictize
 
 from ckanext.datastore_refresh.model import RefreshDatasetDatastore as rdd
-from ckanext.datastore_refresh.helpers import dictize_two_objects, get_frequency_options
+from ckanext.datastore_refresh.helpers import (
+    dictize_two_objects,
+    get_frequency_options,
+)
 from ckanext.datastore_refresh.validation import validate_frequency_options
 
 log = logging.getLogger(__name__)
@@ -28,37 +31,41 @@ def refresh_datastore_dataset_create(context, data_dict):
 
     """
     if not data_dict:
-        raise ValidationError(toolkit._('No data provided'))
+        raise ValidationError(toolkit._("No data provided"))
 
-    if not data_dict.get('frequency'):
-        raise ValidationError(toolkit._('No frequency provided'))
+    if not data_dict.get("frequency"):
+        raise ValidationError(toolkit._("No frequency provided"))
 
     valid_options = get_frequency_options()
-    validate_frequency_options(data_dict.get('frequency'), valid_options)
+    validate_frequency_options(data_dict.get("frequency"), valid_options)
 
-    if not data_dict.get('package_id'):
-        raise ValidationError(toolkit._('No dataset_id provided'))
+    if not data_dict.get("package_id"):
+        raise ValidationError(toolkit._("No dataset_id provided"))
 
-    logic.check_access('refresh_datastore_dataset_create', context, data_dict)
+    logic.check_access("refresh_datastore_dataset_create", context, data_dict)
 
-    session = context['session']
-    user = context['auth_user_obj']
-    dataset_id = data_dict.get('package_id')
-    dataset = toolkit.get_action('package_show')(context, {'id': dataset_id})
+    session = context["session"]
+    user = context["auth_user_obj"]
+    dataset_id = data_dict.get("package_id")
+    dataset = toolkit.get_action("package_show")(context, {"id": dataset_id})
 
     rdd_obj = rdd()
 
-    rdd_obj.dataset_id = dataset['id']
-    rdd_obj.frequency = data_dict.get('frequency')
+    rdd_obj.dataset_id = dataset["id"]
+    rdd_obj.frequency = data_dict.get("frequency")
     rdd_obj.created_user_id = user.id
 
     try:
         rdd_obj.save()
     except Exception as e:
         session.rollback()
-        log.error(toolkit._('Error creating refresh_dataset_datastore: {0}').format(e))
+        log.error(
+            toolkit._("Error creating refresh_dataset_datastore: {0}").format(
+                e
+            )
+        )
         raise ValidationError(
-            toolkit._('Error while creating refresh_dataset_datastore')
+            toolkit._("Error while creating refresh_dataset_datastore")
         )
 
     session.add(rdd_obj)
@@ -77,20 +84,27 @@ def refresh_datastore_dataset_update(context, data_dict):
 
     :returns: none
     """
-    if not data_dict.get('package_id'):
-        raise ValidationError(toolkit._('No dataset_id provided'))
+    if not data_dict.get("package_id"):
+        raise ValidationError(toolkit._("No dataset_id provided"))
 
-    logic.check_access('refresh_datastore_dataset_update', context)
+    logic.check_access("refresh_datastore_dataset_update", context)
 
-    rdd_obj = rdd.get_by_package_id(data_dict['package_id'])
+    rdd_obj = rdd.get_by_package_id(data_dict["package_id"])
     if not rdd_obj:
-        log.error(toolkit._('Refresh_dataset_datastore not found: {0}').format(data_dict['package_id']))
+        log.error(
+            toolkit._("Refresh_dataset_datastore not found: {0}").format(
+                data_dict["package_id"]
+            )
+        )
         return None
-    
-    log.info(toolkit._('Updating refresh_dataset_datastore: {0}').format(rdd_obj))
+
+    log.info(
+        toolkit._("Updating refresh_dataset_datastore: {0}").format(rdd_obj)
+    )
     rdd_obj.datastore_last_refreshed = datetime.datetime.utcnow()
     rdd_obj.save()
     return table_dictize(rdd_obj, context)
+
 
 @toolkit.side_effect_free
 def refresh_dataset_datastore_list(context, data_dict=None):
@@ -99,16 +113,19 @@ def refresh_dataset_datastore_list(context, data_dict=None):
 
     :returns: a list of all refresh_dataset_datastores
     """
-    logic.check_access('refresh_dataset_datastore_list', context)
+    logic.check_access("refresh_dataset_datastore_list", context)
     results = list()
     try:
         results = rdd.get_all()
-    except (sqlalchemy.exc.InternalError, sqlalchemy.exc.ProgrammingError) as e:
+    except (
+        sqlalchemy.exc.InternalError,
+        sqlalchemy.exc.ProgrammingError,
+    ) as e:
         log.error(e)
 
     res_dict = dict()
     if results:
-        res_dict = dictize_two_objects({'model': model}, results)
+        res_dict = dictize_two_objects({"model": model}, results)
 
     return res_dict
 
@@ -123,19 +140,27 @@ def refresh_dataset_datastore_by_frequency(context, data_dict):
     :returns: a list of all refresh_dataset_datastores by frequency
 
     """
-    if not data_dict.get('frequency'):
-        raise ValidationError(toolkit._('No frequency provided'))
+    if not data_dict.get("frequency"):
+        raise ValidationError(toolkit._("No frequency provided"))
 
     valid_options = get_frequency_options()
-    validate_frequency_options(data_dict.get('frequency'), valid_options)
+    validate_frequency_options(data_dict.get("frequency"), valid_options)
 
     toolkit.check_access("refresh_dataset_datastore_by_frequency", context)
 
-    log.info(toolkit._('Refresh_dataset_datastore by frequency: {0}').format(data_dict))
-    results = rdd.get_by_frequency(data_dict.get('frequency'))
+    log.info(
+        toolkit._("Refresh_dataset_datastore by frequency: {0}").format(
+            data_dict
+        )
+    )
+    results = rdd.get_by_frequency(data_dict.get("frequency"))
 
     if not results:
-        log.info(toolkit._('No refresh_dataset_datastore found for frequency: {0}').format(data_dict.get('frequency')))
+        log.info(
+            toolkit._(
+                "No refresh_dataset_datastore found for frequency: {0}"
+            ).format(data_dict.get("frequency"))
+        )
         return []
 
     data_dict = dictize_two_objects(context, results)
@@ -150,16 +175,22 @@ def refresh_dataset_datastore_delete(context, data_dict):
     :type id: string
 
     :returns: the deleted refresh_dataset_datastore
-    
+
     """
     toolkit.check_access("refresh_dataset_datastore_delete", context)
 
-    rdd_id = data_dict['id']
-    log.info(toolkit._('Deleting refresh_dataset_datastore: {0}').format(rdd_id))
+    rdd_id = data_dict["id"]
+    log.info(
+        toolkit._("Deleting refresh_dataset_datastore: {0}").format(rdd_id)
+    )
     rdd_obj = rdd.get(rdd_id)
 
     if rdd_obj:
         rdd.delete(rdd_id)
     else:
-        log.error(toolkit._('Refresh_dataset_datastore not found: {0}').format(rdd_id))
+        log.error(
+            toolkit._("Refresh_dataset_datastore not found: {0}").format(
+                rdd_id
+            )
+        )
         raise ValidationError("Not found")

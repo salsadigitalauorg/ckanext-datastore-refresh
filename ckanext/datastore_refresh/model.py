@@ -13,33 +13,34 @@ refresh_dataset_datastore_table = None
 
 
 refresh_dataset_datastore_table = Table(
-    'refresh_dataset_datastore',
+    "refresh_dataset_datastore",
     metadata,
-    Column('id',
+    Column("id", types.UnicodeText, primary_key=True, default=make_uuid()),
+    Column(
+        "dataset_id",
         types.UnicodeText,
-        primary_key=True,
-        default=make_uuid()),
-    Column('dataset_id',
-        types.UnicodeText, ForeignKey('package.id'),
+        ForeignKey("package.id"),
         nullable=False,
-        index=True),
-    Column('frequency',
+        index=True,
+    ),
+    Column("frequency", types.UnicodeText, nullable=False),
+    Column(
+        "created_user_id",
         types.UnicodeText,
-        nullable=False),
-    Column('created_user_id',
-        types.UnicodeText, ForeignKey('user.id'),
-        nullable=False),
-    Column('created_at',
+        ForeignKey("user.id"),
+        nullable=False,
+    ),
+    Column(
+        "created_at",
         types.DateTime,
         nullable=False,
-        default=datetime.datetime.utcnow),
-    Column('datastore_last_refreshed',
-        types.DateTime,
-        nullable=True)
+        default=datetime.datetime.utcnow,
+    ),
+    Column("datastore_last_refreshed", types.DateTime, nullable=True),
 )
 
-class RefreshDatasetDatastore(DomainObject):
 
+class RefreshDatasetDatastore(DomainObject):
     def __init__(self, **kwargs):
         for k, v in kwargs.items():
             setattr(self, k, v)
@@ -59,26 +60,41 @@ class RefreshDatasetDatastore(DomainObject):
 
     @classmethod
     def get_all(cls):
-        query = Session.query(cls, Package).join(Package).filter(Package.id == cls.dataset_id )
+        query = (
+            Session.query(cls, Package)
+            .join(Package)
+            .filter(Package.id == cls.dataset_id)
+        )
         return query.all()
 
     def get_by_frequency(frequency):
-        query = Session.query(RefreshDatasetDatastore, Package).join(Package).filter(RefreshDatasetDatastore.frequency==frequency)
+        query = (
+            Session.query(RefreshDatasetDatastore, Package)
+            .join(Package)
+            .filter(RefreshDatasetDatastore.frequency == frequency)
+        )
         return query.all()
 
     def get_by_package_id(package_id):
-        query = Session.query(RefreshDatasetDatastore).filter(RefreshDatasetDatastore.dataset_id==package_id)
+        query = Session.query(RefreshDatasetDatastore).filter(
+            RefreshDatasetDatastore.dataset_id == package_id
+        )
         return query.first()
 
 
-mapper(RefreshDatasetDatastore, refresh_dataset_datastore_table,
-properties={
-        u"dataset": orm.relationship(
-            Package, 
-            primaryjoin=refresh_dataset_datastore_table.c.dataset_id == Package.id,
-            backref=orm.backref(u"refresh_dataset_datastores",
-            cascade=u"all, delete")
-        )}
+mapper(
+    RefreshDatasetDatastore,
+    refresh_dataset_datastore_table,
+    properties={
+        "dataset": orm.relationship(
+            Package,
+            primaryjoin=refresh_dataset_datastore_table.c.dataset_id
+            == Package.id,
+            backref=orm.backref(
+                "refresh_dataset_datastores", cascade="all, delete"
+            ),
+        )
+    },
 )
 
 
