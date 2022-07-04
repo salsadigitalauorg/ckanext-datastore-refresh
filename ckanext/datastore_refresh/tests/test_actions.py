@@ -82,7 +82,7 @@ class TestRefreshDatastoreDatasetCreate(object):
         dataset, sysadmin_obj = self.create_test_data()
         data_dict = {"package_id": dataset["id"], "frequency": "10m"}
 
-        with pytest.raises(Invalid):
+        with pytest.raises(ValidationError):
             helpers.call_action(
                 "datastore_refresh_dataset_refresh_create",
                 context={"auth_user_obj": sysadmin_obj},
@@ -247,7 +247,7 @@ class TestRefreshDatastoreDatasetList(object):
             "datastore_refresh_dataset_refresh_list",
             context={"auth_user_obj": sysadmin_obj},
         )
-        assert results == {}
+        assert results == {"refresh_dataset_datastore": []}
 
     def test_refresh_dataset_datastore_list_anonymous(self):
         dataset, sysadmin_obj = self.create_test_data()
@@ -345,7 +345,7 @@ class TestRefreshDatastoreDatasetByFrequency(object):
             **data_dict,
         )
 
-        with pytest.raises(Invalid):
+        with pytest.raises(ValidationError):
             helpers.call_action(
                 "datastore_refresh_dataset_refresh_list_by_frequency",
                 context={"auth_user_obj": sysadmin_obj},

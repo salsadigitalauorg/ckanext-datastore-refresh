@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import datetime
-from typing import Optional
+from typing import Iterable, Optional
 
 from typing_extensions import Self
+from ckan.lib.webassets_tools import include_asset
 
 import ckan.model as model
+from ckan.lib.dictization import table_dictize
 from ckan.model.types import make_uuid
 from sqlalchemy import Column, ForeignKey, UnicodeText, DateTime, orm
 
@@ -58,26 +60,45 @@ class DatasetRefresh(Base):
             model.Session.commit()
 
     @classmethod
-    def get_all(cls) -> list[tuple[Self, model.Package]]:
-        query = (
-            model.Session.query(cls, model.Package)
-            .join(model.Package)
-            .filter(model.Package.id == cls.dataset_id)
-        )
-        return query.all()
+    def get_all(cls) -> Iterable[Self]:
+        query = model.Session.query(cls)
+
+        return query
 
     @classmethod
-    def get_by_frequency(cls, frequency: str) -> list[tuple[Self, model.Package]]:
-        query = (
-            model.Session.query(cls, model.Package)
-            .join(model.Package)
-            .filter(cls.frequency == frequency)
-        )
-        return query.all()
+    def get_by_frequency(cls, frequency: str) -> Iterable[Self]:
+        query = model.Session.query(cls).filter(cls.frequency == frequency)
+
+        return query
 
     @classmethod
     def get_by_package_id(cls, package_id: str) -> Optional[Self]:
-        query = model.Session.query(cls).filter(
-            cls.dataset_id == package_id
-        )
+        query = model.Session.query(cls).filter(cls.dataset_id == package_id)
         return query.first()
+
+    def dictize(self, context):
+        return table_dictize(self, context)
+
+    @classmethod
+    def dictize_collection(cls, pairs: Iterable[Self], context):
+        """Returns model objects as a dictionary
+        :param results: list of model objects: RefreshDatasetDatastore, Package
+        :type results: list
+        """
+        model = context["model"]
+        include_package = context.get("dataset_refresh_include_package", False)
+
+        result = []
+
+        for item in pairs:
+            dictized = item.dictize(context.copy())
+            result.append(dictized)
+            if include_package:
+                dictized["package"] = table_dictize(
+                    item.dataset, {"model": model}
+                )
+
+        return result
+
+    def touch(self):
+        self.datastore_last_refreshed = datetime.datetime.utcnow()

@@ -33,9 +33,9 @@ def refresh_dataset_datastore(frequency):
     context = {"user": site_user.get("name")}
     datasets = {}
     try:
-        datasets = tk.get_action("datastore_refresh_dataset_refresh_list_by_frequency")(
-            context, {"frequency": frequency}
-        )
+        datasets = tk.get_action(
+            "datastore_refresh_dataset_refresh_list_by_frequency"
+        )(context, {"frequency": frequency})
     except tk.Invalid as e:
         log.error(e)
 

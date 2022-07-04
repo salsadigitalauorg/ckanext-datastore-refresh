@@ -51,46 +51,15 @@ def time_ago_from_datetime(datetime):
     return formatters.localised_nice_date(datetime, show_date=False)
 
 
-def dictize_two_objects(context, results):
-    """Returns model objects as a dictionary
-    :param results: list of model objects: RefreshDatasetDatastore, Package
-    :type results: list
-    """
-    model = context["model"]
-    data_dict = dict()
-    data_dict["refresh_dataset_datastore"] = list()
-
-    for index, result in enumerate(results):
-        for res in result:
-            if isinstance(res, rdd):
-                data_dict["refresh_dataset_datastore"].append(
-                    d.table_dictize(res, {"model": model})
-                )
-            else:
-                data_dict["refresh_dataset_datastore"][index][
-                    "package"
-                ] = dict()
-                data_dict["refresh_dataset_datastore"][index][
-                    "package"
-                ] = d.table_dictize(res, {"model": model})
-                log.info(
-                    toolkit._("Refresh dataset by frequency: {0}").format(
-                        res.name
-                    )
-                )
-
-    return data_dict
-
-
 def purge_section_cache(context, resource_dict, dataset_dict):
     try:
         cache_ban_url = toolkit.config.get(
             "ckanext.datastore_refresh.cache_ban_url"
         )
         if cache_ban_url:
-            rdd = toolkit.get_action("datastore_refresh_dataset_refresh_update")(
-                context, {"package_id": dataset_dict.get("id")}
-            )
+            rdd = toolkit.get_action(
+                "datastore_refresh_dataset_refresh_update"
+            )(context, {"package_id": dataset_dict.get("id")})
             if rdd:
                 cache_user = toolkit.config.get(
                     "ckanext.datastore_refresh.cache_user"

@@ -8,7 +8,6 @@ from ckanext.datastore_refresh.model import DatasetRefresh as rdd
 
 @pytest.mark.usefixtures("with_plugins", "clean_db")
 class TestRefreshDatasetDatastore:
-
     def test_create(self, package, sysadmin):
         results = rdd(
             dataset_id=package["id"],
@@ -23,7 +22,6 @@ class TestRefreshDatasetDatastore:
         assert obj.frequency == "10"
         assert obj.created_user_id == sysadmin["id"]
         assert obj.datastore_last_refreshed is None
-
 
     @pytest.mark.freez_time
     def test_update(self, freezer, package, sysadmin, faker):
