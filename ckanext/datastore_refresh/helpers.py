@@ -1,34 +1,33 @@
+from functools import lru_cache
 import logging
 
-import ckan.lib.dictization as d
 import ckan.lib.formatters as formatters
-import ckan.lib.helpers as h
-import ckan.plugins.toolkit as toolkit
-import requests
-from ckan.lib.navl.dictization_functions import unflatten
-from ckan.logic import clean_dict, parse_params, tuplize_dict
-from ckan.views.api import API_DEFAULT_VERSION
+import ckan.plugins.toolkit as tk
 
 import ckanext.datastore_refresh.choices as choices
-from ckanext.datastore_refresh.model import DatasetRefresh as rdd
+from ckanext.datastore_refresh.model import DatasetRefresh as DatasetRefresh
+
+from ckanext.toolbelt.decorators import Collector
+
+helper, get_helpers = Collector("datastore_refresh").split()
 
 log = logging.getLogger(__name__)
 
 
+@helper
+@lru_cache(1)
 def get_frequency_options():
     return choices.load_options()
 
 
-def clean_params(params):
-    return clean_dict(unflatten(tuplize_dict(parse_params(params))))
-
-
+@helper
 def get_datastore_refresh_configs():
-    return toolkit.get_action("datastore_refresh_dataset_refresh_list")({}, {})
+    return tk.get_action("datastore_refresh_dataset_refresh_list")({}, {})
 
 
+@helper
 def get_datasore_refresh_config_option(frequency):
-    options = get_frequency_options()
+    options = tk.h.datastore_refresh_get_frequency_options()
     res = [
         option["text"] for option in options if option["value"] == frequency
     ]
@@ -36,6 +35,7 @@ def get_datasore_refresh_config_option(frequency):
         return res[0]
 
 
+@helper
 def time_ago_from_datetime(datetime):
     """Returns a string like `5 months ago` for a datetime relative to now
     :param timestamp: the timestamp or datetime
@@ -46,64 +46,6 @@ def time_ago_from_datetime(datetime):
     if not datetime:
         return None
     if isinstance(datetime, str):
-        datetime = h.date_str_to_datetime(datetime)
+        datetime = tk.h.date_str_to_datetime(datetime)
     # the localised date
     return formatters.localised_nice_date(datetime, show_date=False)
-
-
-def purge_section_cache(context, resource_dict, dataset_dict):
-    try:
-        cache_ban_url = toolkit.config.get(
-            "ckanext.datastore_refresh.cache_ban_url"
-        )
-        if cache_ban_url:
-            rdd = toolkit.get_action(
-                "datastore_refresh_dataset_refresh_update"
-            )(context, {"package_id": dataset_dict.get("id")})
-            if rdd:
-                cache_user = toolkit.config.get(
-                    "ckanext.datastore_refresh.cache_user"
-                )
-                cache_pass = toolkit.config.get(
-                    "ckanext.datastore_refresh.cache_pass"
-                )
-                cache_account_id = toolkit.config.get(
-                    "ckanext.datastore_refresh.cache_account_id"
-                )
-                cache_application_id = toolkit.config.get(
-                    "ckanext.datastore_refresh.cache_application_id"
-                )
-                cache_environment_id = toolkit.config.get(
-                    "ckanext.datastore_refresh.cache_environment_id"
-                )
-
-                cache_url = (
-                    f"{cache_ban_url}/account/{cache_account_id}/application/{cache_application_id}/environment/{cache_environment_id}/proxy/varnish/state?banExpression=req.url ~ "
-                )
-                auth = (cache_user, cache_pass)
-                headers = {"Content-Type": "application/json"}
-
-                # There could be two api paths to clear. One with api version and one with out
-                api_noversion_endpoint = f"/api/action/datastore_search?id={resource_dict.get('id')}"
-                api_default_version_endpoint = f"/api/{API_DEFAULT_VERSION}/action/datastore_search?id={resource_dict.get('id')}"
-                api_endpoints = [
-                    api_noversion_endpoint,
-                    api_default_version_endpoint,
-                ]
-
-                for api_endpoint in api_endpoints:
-                    url = f"{cache_url}{api_endpoint}"
-                    # Ping CDN to purge/clear cache
-                    response = requests.post(url, auth=auth, headers=headers)
-                    if response.ok:
-                        log.info(
-                            f"Successfully purged cache for api {api_endpoint}"
-                        )
-                    else:
-                        log.error(
-                            f"Failed to purged cache for api {api_endpoint}:"
-                            f" {response.reason}"
-                        )
-
-    except Exception as ex:
-        log.error(ex)

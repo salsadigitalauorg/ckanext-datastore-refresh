@@ -43,7 +43,7 @@ To install ckanext-datastore-refresh:
 Configuration is done by the CKAN admin menu
 
 ```
-@hourly datastore_config -c /path/to/ckan.ini refresh_dataset_datastore 10
+@hourly ckan -c /path/to/ckan.ini datastore-refresh refresh_dataset_datastore 10
 ```
 10 - frequency  to refresh the datastore  (in minutes)
 Cron jobs can be set by the desired frequency which currently is set to 10 min, 2 hours or 24 hours

@@ -43,7 +43,7 @@ def dataset_refresh_list_by_frequency(not_missing):
 
 
 def _validate_frequency_options(value):
-    list_of_values = tk.h.get_frequency_options()
+    list_of_values = tk.h.datastore_refresh_get_frequency_options()
     allowed_values = []
     for row in list_of_values:
         if row["value"] != "0":

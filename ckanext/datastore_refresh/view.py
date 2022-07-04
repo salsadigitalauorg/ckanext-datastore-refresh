@@ -6,17 +6,26 @@ import ckan.plugins.toolkit as toolkit
 from flask import Blueprint
 from flask.views import MethodView
 
-from ckanext.datastore_refresh import helpers
+from ckan.lib.navl.dictization_functions import unflatten
+from ckan.logic import clean_dict, parse_params, tuplize_dict
 
 NotFound = toolkit.ObjectNotFound
 get_action = toolkit.get_action
 h = toolkit.h
 render = toolkit.render
 log = logging.getLogger(__name__)
-datastore_config = Blueprint("datastore_config", __name__)
+datastore_refresh = Blueprint("datastore_refresh", __name__)
 
 
-@datastore_config.before_request
+def get_blueprints():
+    return [datastore_refresh]
+
+
+def clean_params(params):
+    return clean_dict(unflatten(tuplize_dict(parse_params(params))))
+
+
+@datastore_refresh.before_request
 def before_request():
     try:
         context = {
@@ -52,24 +61,19 @@ class DatastoreRefreshConfigView(MethodView):
             "auth_user_obj": toolkit.g.userobj,
         }
 
-    def get(self, context=None, errors=None, error_summary=None):
-        context = self._get_context()
-
+    def get(self):
         extra_vars = self._setup_extra_template_variables()
-        extra_vars["errors"] = errors
-        extra_vars["error_summary"] = error_summary
-
         return render("admin/datastore_refresh.html", extra_vars=extra_vars)
 
     def post(self):
         context = self._get_context()
-        params = helpers.clean_params(toolkit.request.form)
+        params = clean_params(toolkit.request.form)
         if params.get("delete_config"):
             get_action("datastore_refresh_dataset_refresh_delete")(
                 context, {"id": params.get("delete_config")}
             )
             h.flash_success(toolkit._("Succesfully deleted configuration"))
-            return h.redirect_to("datastore_config.datastore_refresh_config")
+            return h.redirect_to("datastore_refresh.datastore_refresh_config")
 
         if not params.get("dataset"):
             h.flash_error(toolkit._("Please select dataset"))
@@ -99,7 +103,7 @@ class DatastoreRefreshConfigView(MethodView):
         )
         extra_vars = self._setup_extra_template_variables()
         extra_vars["data"] = results
-        return h.redirect_to("datastore_config.datastore_refresh_config")
+        return h.redirect_to("datastore_refresh.datastore_refresh_config")
 
 
 def register_plugin_rules(blueprint):
@@ -111,4 +115,4 @@ def register_plugin_rules(blueprint):
     )
 
 
-register_plugin_rules(datastore_config)
+register_plugin_rules(datastore_refresh)

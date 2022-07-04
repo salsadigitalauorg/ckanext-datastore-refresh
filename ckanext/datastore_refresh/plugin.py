@@ -1,7 +1,11 @@
 import logging
 
+import requests
+
 import ckan.plugins as plugins
-import ckan.plugins.toolkit as toolkit
+import ckan.plugins.toolkit as tk
+from ckan.views.api import API_DEFAULT_VERSION
+
 import ckanext.xloader.interfaces as xloader_interfaces
 
 from . import cli, helpers, view
@@ -22,12 +26,7 @@ class DatastoreRefreshPlugin(plugins.SingletonPlugin):
 
     # ITemplateHelpers
     def get_helpers(self):
-        return {
-            "get_frequency_options": helpers.get_frequency_options,
-            "get_datastore_refresh_configs": helpers.get_datastore_refresh_configs,
-            "get_datasore_refresh_config_option": helpers.get_datasore_refresh_config_option,
-            "time_ago_from_datetime": helpers.time_ago_from_datetime,
-        }
+        return helpers.get_helpers()
 
     # IActions
     def get_actions(self):
@@ -39,13 +38,13 @@ class DatastoreRefreshPlugin(plugins.SingletonPlugin):
 
     # IConfigurer
     def update_config(self, config_):
-        toolkit.add_template_directory(config_, "templates")
-        toolkit.add_public_directory(config_, "public")
-        toolkit.add_resource("assets", "datastore_refresh")
+        tk.add_template_directory(config_, "templates")
+        tk.add_public_directory(config_, "public")
+
         # Add a new ckan-admin tabs for our extension
-        toolkit.add_ckan_admin_tab(
-            toolkit.config,
-            "datastore_config.datastore_refresh_config",
+        tk.add_ckan_admin_tab(
+            tk.config,
+            "datastore_refresh.datastore_refresh_config",
             "Datastore refresh",
             config_var="ckan.admin_tabs",
         )
@@ -56,8 +55,66 @@ class DatastoreRefreshPlugin(plugins.SingletonPlugin):
 
     # IBlueprint
     def get_blueprint(self):
-        return view.datastore_config
+        return view.get_blueprints()
 
     # IXLoader
     def after_upload(self, context, resource_dict, dataset_dict):
-        helpers.purge_section_cache(context, resource_dict, dataset_dict)
+        _purge_section_cache(context, resource_dict, dataset_dict)
+
+
+def _purge_section_cache(context, resource_dict, dataset_dict):
+    cache_ban_url = tk.config.get("ckanext.datastore_refresh.cache_ban_url")
+    if not cache_ban_url:
+        return
+    try:
+        rdd = tk.get_action("datastore_refresh_dataset_refresh_update")(
+            context, {"package_id": dataset_dict.get("id")}
+        )
+    except Exception as ex:
+        log.error(ex)
+        return
+
+    cache_user = tk.config.get("ckanext.datastore_refresh.cache_user")
+    cache_pass = tk.config.get("ckanext.datastore_refresh.cache_pass")
+    cache_account_id = tk.config.get(
+        "ckanext.datastore_refresh.cache_account_id"
+    )
+    cache_application_id = tk.config.get(
+        "ckanext.datastore_refresh.cache_application_id"
+    )
+    cache_environment_id = tk.config.get(
+        "ckanext.datastore_refresh.cache_environment_id"
+    )
+
+    cache_url = (
+        f"{cache_ban_url}/account/{cache_account_id}/application/{cache_application_id}/environment/{cache_environment_id}/proxy/varnish/state?banExpression=req.url ~ "
+    )
+    auth = (cache_user, cache_pass)
+    headers = {"Content-Type": "application/json"}
+
+    # There could be two api paths to clear. One with api version and one with out
+    api_noversion_endpoint = (
+        f"/api/action/datastore_search?id={resource_dict.get('id')}"
+    )
+    api_default_version_endpoint = f"/api/{API_DEFAULT_VERSION}/action/datastore_search?id={resource_dict.get('id')}"
+    api_endpoints = [
+        api_noversion_endpoint,
+        api_default_version_endpoint,
+    ]
+
+    for api_endpoint in api_endpoints:
+        url = f"{cache_url}{api_endpoint}"
+        # Ping CDN to purge/clear cache
+        try:
+            response = requests.post(url, auth=auth, headers=headers)
+        except Exception as ex:
+            log.error(ex)
+            continue
+
+        if response.ok:
+            log.info(f"Successfully purged cache for api {api_endpoint}")
+        else:
+            log.error(
+                f"Failed to purged cache for api {api_endpoint}:"
+                f" {response.reason}"
+            )

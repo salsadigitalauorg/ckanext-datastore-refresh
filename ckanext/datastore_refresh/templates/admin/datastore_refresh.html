@@ -5,34 +5,32 @@
 
 <div id="datastore_config">
   <form action="" method="post" class="form-horizontal">
-    <h3>Create dataset datastore refresh</h3>
-    
-      {% set datastore_refresh_configs = h.get_datastore_refresh_configs() %}
-      {% set dataset_attrs ={'data-module': 'autocomplete', 'data-module-dataset': '', 
-            'data-module-label': 'title',
-            'data-module-tags': 'false',
-            'data-module-createtags': 'false',
-            'data-module-source': '/api/2/util/dataset/autocomplete?incomplete=?'} %}
-      
+      <h3>Create dataset datastore refresh</h3>
+
+      {% set datastore_refresh_configs = h.datastore_refresh_get_datastore_refresh_configs() %}
+      {% set dataset_attrs ={'data-module': 'autocomplete', 'data-module-dataset': '',
+          'data-module-label': 'title',
+          'data-module-tags': 'false',
+          'data-module-createtags': 'false',
+          'data-module-source': '/api/2/util/dataset/autocomplete?incomplete=?'} %}
+
       {{ form.input(
-        'dataset', 
-        label=_('Dataset'), 
-        value="",
-        placeholder = "Select dataset", 
-        error="", 
-        classes=['control-full'], 
-        attrs=dataset_attrs)}}
+          'dataset',
+          label=_('Dataset'),
+          value="",
+          placeholder = "Select dataset",
+          classes=['control-full'],
+          attrs=dataset_attrs)}}
 
       {{ form.select(
-        'frequency',
-        label=_('Frequency'),
-        selected=" ",
-        options = h.get_frequency_options(),
-        error=errors if errors else None
+          'frequency',
+          label=_('Frequency'),
+          selected=" ",
+          options = h.datastore_refresh_get_frequency_options(),
       ) }}
 
       <button class="btn btn-primary">Add</button>
-      
+
       <hr />
 
       <div>
@@ -52,16 +50,16 @@
               {% for refresh_config in datastore_refresh_configs.refresh_dataset_datastore %}
               <tr>
                 <td>  <a href="{{ h.url_for('dataset.read', id=refresh_config.package.name) }}"> {{ refresh_config.package.title }}</a> </td>
-                <td> {{ h.get_datasore_refresh_config_option(refresh_config.frequency) }} </td>
+                <td> {{ h.datastore_refresh_get_datasore_refresh_config_option(refresh_config.frequency) }} </td>
                 <td> {{ h.render_datetime(refresh_config.created_at) }} </td>
-                <td> {{ h.time_ago_from_datetime(refresh_config.datastore_last_refreshed) or 'No data'}} </td>
+                <td> {{ h.datastore_refresh_time_ago_from_datetime(refresh_config.datastore_last_refreshed) or 'No data'}} </td>
                 <td> <button class="btn btn-danger" type="submit" name="delete_config" value="{{refresh_config.id}}"> Delete</button> </td>
               {% endfor%}
             </tbody>
           </table>
         </small>
       </div>
-      
+
   </form>
 </div>
 

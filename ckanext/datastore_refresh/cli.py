@@ -5,23 +5,23 @@ import logging
 import ckan.plugins.toolkit as tk
 import click
 
-import ckanext.datastore_refresh.helpers as helpers
-import ckanext.datastore_refresh.model as model
 
 log = logging.getLogger(__name__)
 
 
-@click.group(
-    name="datastore_config", short_help="Manage datastore_config commands"
-)
-def datastore_config():
-    """Example of group of commands."""
+def get_commands():
+    return [datastore_refresh]
+
+
+@click.group(short_help="Manage datastore-refresh commands")
+def datastore_refresh():
+    """Manage datastore-refresh commands"""
     pass
 
 
-@datastore_config.command("refresh_dataset_datastore")
+@datastore_refresh.command()
 @click.argument("frequency")
-def refresh_dataset_datastore(frequency):
+def dataset(frequency):
     """
     Refresh the datastore for a dataset
     """
@@ -31,13 +31,13 @@ def refresh_dataset_datastore(frequency):
 
     site_user = tk.get_action("get_site_user")({"ignore_auth": True}, {})
     context = {"user": site_user.get("name")}
-    datasets = {}
     try:
         datasets = tk.get_action(
             "datastore_refresh_dataset_refresh_list_by_frequency"
         )(context, {"frequency": frequency})
-    except tk.Invalid as e:
-        log.error(e)
+    except tk.ValidationError as e:
+        tk.error_shout(e)
+        raise click.Abort()
 
     if not datasets:
         click.secho("No datasets with this criteria", fg="yellow")
@@ -96,21 +96,16 @@ def _submit_resource(dataset, resource, context):
     if success:
         click.secho("...ok", fg="green")
     else:
-        click.secho("ERROR submitting resource", fg="red")
+        tk.error_shout("ERROR submitting resource")
 
 
-@datastore_config.command(
-    "available_choices", short_help="Shows available choices"
-)
+@datastore_refresh.command()
 def available_choices():
+    """Shows available choices"""
     frequency_options = []
-    data = helpers.get_frequency_options()
+    data = tk.h.datastore_refresh_get_frequency_options()
 
     for row in data:
         if row["value"] != "0":
             frequency_options.append(row["value"])
     click.secho(f"Available choices: {frequency_options}", fg="green")
-
-
-def get_commands():
-    return [datastore_config]

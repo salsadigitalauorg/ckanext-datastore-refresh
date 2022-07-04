@@ -1,19 +1,17 @@
 import logging
 
-import ckan.logic as logic
-import ckan.model as model
-import ckan.plugins.toolkit as toolkit
-import sqlalchemy
+import ckan.plugins.toolkit as tk
 from ckan.logic import validate
 
-from ckanext.datastore_refresh.model import DatasetRefresh as rdd
 from ckanext.toolbelt.decorators import Collector
+
+from ckanext.datastore_refresh.model import DatasetRefresh
 from . import schema
 
 action, get_actions = Collector("datastore_refresh").split()
 
 log = logging.getLogger(__name__)
-ValidationError = toolkit.ValidationError
+ValidationError = tk.ValidationError
 
 
 @action
@@ -29,17 +27,17 @@ def dataset_refresh_create(context, data_dict):
     :returns: the newly created refresh_dataset_datastore
 
     """
-    logic.check_access(
+    tk.check_access(
         "datastore_refresh_dataset_refresh_create", context, data_dict
     )
 
     session = context["session"]
     user = context["auth_user_obj"]
-    dataset = toolkit.get_action("package_show")(
+    dataset = tk.get_action("package_show")(
         context, {"id": data_dict["package_id"]}
     )
 
-    rdd_obj = rdd(
+    rdd_obj = DatasetRefresh(
         dataset_id=dataset["id"],
         frequency=data_dict["frequency"],
         created_user_id=user.id,
@@ -67,14 +65,14 @@ def dataset_refresh_update(context, data_dict):
 
     :returns: none
     """
-    logic.check_access("datastore_refresh_dataset_refresh_update", context)
+    tk.check_access("datastore_refresh_dataset_refresh_update", context)
 
-    rdd_obj = rdd.get_by_package_id(data_dict["package_id"])
+    rdd_obj = DatasetRefresh.get_by_package_id(data_dict["package_id"])
     if not rdd_obj:
         log.error(
             "Refresh_dataset_datastore not found: %s", data_dict["package_id"]
         )
-        return None
+        raise tk.ObjectNotFound()
 
     log.debug("Updating refresh_dataset_datastore: %s", rdd_obj)
     rdd_obj.touch()
@@ -84,18 +82,18 @@ def dataset_refresh_update(context, data_dict):
 
 
 @action
-@toolkit.side_effect_free
+@tk.side_effect_free
 def dataset_refresh_list(context, data_dict):
     """List all dataset refresh schedules.
 
     :returns: a list of all refresh_dataset_datastores
     """
-    logic.check_access("datastore_refresh_dataset_refresh_list", context)
-    results = results = rdd.get_all()
+    tk.check_access("datastore_refresh_dataset_refresh_list", context)
+    results = results = DatasetRefresh.get_all()
 
     return {
-        "refresh_dataset_datastore": rdd.dictize_collection(
-            results, {"model": model, "dataset_refresh_include_package": True}
+        "refresh_dataset_datastore": DatasetRefresh.dictize_collection(
+            results, dict(context, dataset_refresh_include_package=True)
         )
     }
 
@@ -111,14 +109,14 @@ def dataset_refresh_list_by_frequency(context, data_dict):
     :returns: a list of all refresh_dataset_datastores by frequency
 
     """
-    toolkit.check_access(
+    tk.check_access(
         "datastore_refresh_dataset_refresh_list_by_frequency", context
     )
 
-    results = rdd.get_by_frequency(data_dict.get("frequency"))
+    results = DatasetRefresh.get_by_frequency(data_dict.get("frequency"))
 
     return {
-        "refresh_dataset_datastore": rdd.dictize_collection(
+        "refresh_dataset_datastore": DatasetRefresh.dictize_collection(
             results, dict(context, dataset_refresh_include_package=True)
         )
     }
@@ -135,14 +133,14 @@ def dataset_refresh_delete(context, data_dict):
     :returns: the deleted refresh_dataset_datastore
 
     """
-    toolkit.check_access("datastore_refresh_dataset_refresh_delete", context)
+    tk.check_access("datastore_refresh_dataset_refresh_delete", context)
 
     rdd_id = data_dict["id"]
     log.info("Deleting refresh_dataset_datastore: %s", rdd_id)
-    rdd_obj = rdd.get(rdd_id)
+    rdd_obj = DatasetRefresh.get(rdd_id)
 
     if not rdd_obj:
         log.error("Refresh_dataset_datastore not found: %s", rdd_id)
         raise ValidationError("Not found")
 
-    rdd.delete(rdd_id)
+    DatasetRefresh.delete(rdd_id)

@@ -7,7 +7,7 @@ import ckan.tests.helpers as helpers
 import pytest
 from ckan.plugins.toolkit import Invalid, ValidationError, url_for
 
-from ckanext.datastore_refresh.model import DatasetRefresh as rdd
+from ckanext.datastore_refresh.model import DatasetRefresh as DatasetRefresh
 
 
 @pytest.mark.usefixtures("with_plugins", "clean_db")
@@ -138,7 +138,7 @@ class TestRefreshDatastoreDatasetUpdate(object):
             context={"auth_user_obj": sysadmin_obj},
             **data_dict,
         )
-        rdd_obj = rdd.get_by_package_id(data_dict["package_id"])
+        rdd_obj = DatasetRefresh.get_by_package_id(data_dict["package_id"])
         assert rdd_obj.datastore_last_refreshed is None
 
         freezer.move_to(datetime.datetime.utcnow())
@@ -147,7 +147,7 @@ class TestRefreshDatastoreDatasetUpdate(object):
             context={"auth_user_obj": sysadmin_obj},
             **data_dict,
         )
-        rdd_obj = rdd.get_by_package_id(data_dict["package_id"])
+        rdd_obj = DatasetRefresh.get_by_package_id(data_dict["package_id"])
 
         assert rdd_obj.datastore_last_refreshed == datetime.datetime.utcnow()
 
@@ -166,12 +166,12 @@ class TestRefreshDatastoreDatasetUpdate(object):
         _, sysadmin_obj = self.create_test_data()
         data_dict = {"package_id": "worngid", "frequency": self.frequency}
 
-        result = helpers.call_action(
-            "datastore_refresh_dataset_refresh_update",
-            context={"auth_user_obj": sysadmin_obj},
-            **data_dict,
-        )
-        assert result is None
+        with pytest.raises(logic.NotFound):
+            helpers.call_action(
+                "datastore_refresh_dataset_refresh_update",
+                context={"auth_user_obj": sysadmin_obj},
+                **data_dict,
+            )
 
     def test_refresh_datastore_dataset_update_annonymous(self):
         dataset, sysadmin_obj = self.create_test_data()
@@ -418,7 +418,7 @@ class TestRefreshDatastoreDatasetDelete(object):
         _id = _list["refresh_dataset_datastore"][0]["id"]
 
         env = {"REMOTE_USER": str(sysadmin_obj.name)}
-        url = url_for("datastore_config.datastore_refresh_config")
+        url = url_for("datastore_refresh.datastore_refresh_config")
         postparams = {"delete_config": _id}
         res = app.post(url, data=postparams, environ_overrides=env, status=200)
 
@@ -440,7 +440,7 @@ class TestRefreshDatastoreDatasetDelete(object):
         )
         _id = _list["refresh_dataset_datastore"][0]["id"]
         env = {"REMOTE_USER": "anonymous"}
-        url = url_for("datastore_config.datastore_refresh_config")
+        url = url_for("datastore_refresh.datastore_refresh_config")
         postparams = {"delete_config": _id}
 
         app.post(url, data=postparams, environ_overrides=env, status=403)
@@ -462,7 +462,7 @@ class TestRefreshDatastoreDatasetDelete(object):
         normal_user = factories.User()
         _id = _list["refresh_dataset_datastore"][0]["id"]
         env = {"REMOTE_USER": str(normal_user["name"])}
-        url = url_for("datastore_config.datastore_refresh_config")
+        url = url_for("datastore_refresh.datastore_refresh_config")
         postparams = {"delete_config": _id}
 
         app.post(url, data=postparams, environ_overrides=env, status=403)
