@@ -7,6 +7,7 @@ Create Date: 2021-09-08 16:26:58.692504
 """
 import sqlalchemy as sa
 from alembic import op
+from sqlalchemy.engine.reflection import Inspector
 
 # revision identifiers, used by Alembic.
 revision = "2cda5f1bc8d4"
@@ -16,6 +17,12 @@ depends_on = None
 
 
 def upgrade():
+    conn = op.get_bind()
+    inspector = Inspector.from_engine(conn)
+    tables = inspector.get_table_names()
+    if "refresh_dataset_datastore" in tables:
+        return
+
     op.create_table(
         "refresh_dataset_datastore",
         sa.Column("id", sa.UnicodeText, primary_key=True),
