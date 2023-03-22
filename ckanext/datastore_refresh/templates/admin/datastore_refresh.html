@@ -5,6 +5,8 @@
 
 <div id="datastore_config">
   <form action="" method="post" class="form-horizontal">
+    {{ h.csrf_input() if 'csrf_input' in h }}
+
     <h3>Create dataset datastore refresh</h3>
     
       {% set datastore_refresh_configs = h.get_datastore_refresh_configs() %}

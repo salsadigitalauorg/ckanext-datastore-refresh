@@ -19,9 +19,7 @@ class DatastoreRefreshConfigView(MethodView):
 
     def _setup_extra_template_variables(self):
         user = toolkit.g.userobj
-        context = {u'for_view': True, u'user': user.name, u'auth_user_obj': user}
-        #data_dict = {u'user_obj': user, u'include_datasets': True}
-        return context
+        return {u'for_view': True, u'user': user.name, u'auth_user_obj': user}
 
     def _get_context(self):
         return {
